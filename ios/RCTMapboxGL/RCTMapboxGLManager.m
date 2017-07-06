@@ -774,8 +774,9 @@ RCT_EXPORT_METHOD(setSource:(nonnull NSNumber *)reactTag
                       return;
                   }
               } else {
+                  NSURL *url = [NSURL URLWithString:dataString];
                   if (!sourceFromMap) {
-                      MGLShapeSource *source = [[MGLShapeSource alloc] initWithIdentifier:id URL:dataString options:options];
+                      MGLShapeSource *source = [[MGLShapeSource alloc] initWithIdentifier:id URL:url options:options];
                       if (![mapView addSource:source]) {
                           reject(@"map_style_not_loaded", @"setSource(): style has not finished loading", nil);
                           return;
@@ -784,7 +785,7 @@ RCT_EXPORT_METHOD(setSource:(nonnull NSNumber *)reactTag
                       return;
                   }
                   if ([sourceFromMap respondsToSelector:@selector(setURL:)]) {
-                      [sourceFromMap performSelector:@selector(setURL:) withObject:dataString];
+                      [sourceFromMap performSelector:@selector(setURL:) withObject:url];
                       resolve(nil);
                       return;
                   }
