@@ -141,6 +141,12 @@ function setOfflinePackProgressThrottleInterval(milis) {
   MapboxGLManager.setOfflinePackProgressThrottleInterval(milis);
 }
 
+function putTilesFromMBTiles(path, urlTemplate, pixelRatio, callback) {
+  const promise = MapboxGLManager.putTilesFromMBTiles(path, urlTemplate, pixelRatio);
+  bindCallbackToPromise(callback, promise);
+  return promise;
+}
+
 function addOfflinePackProgressListener(handler) {
   let _handler = handler;
   if (Platform.OS === 'android') {
@@ -661,7 +667,8 @@ const Mapbox = {
   addOfflinePackProgressListener,
   addOfflineMaxAllowedTilesListener,
   addOfflineErrorListener,
-  setOfflinePackProgressThrottleInterval
+  setOfflinePackProgressThrottleInterval,
+  putTilesFromMBTiles
 };
 
 module.exports = Mapbox;

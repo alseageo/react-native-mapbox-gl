@@ -2,6 +2,8 @@
 package com.mapbox.reactnativemapboxgl;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcel;
@@ -16,8 +18,10 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 import com.facebook.common.logging.FLog;
 import com.facebook.react.bridge.Arguments;
@@ -514,5 +518,72 @@ public class ReactNativeMapboxGLModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void setOfflinePackProgressThrottleInterval(int milis) {
         throttleInterval = milis;
+    }
+
+    private void gunzipAndPutTile(
+        final String urlTemplate,
+        final float pixelRatio,
+        final int x,
+        final int y,
+        final int z,
+        byte[] gzippedData,
+        final Promise promise) throws IOException {
+        // gunzip tile
+        GZIPInputStream is = new GZIPInputStream(new ByteArrayInputStream(gzippedData));
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        int nRead;
+        byte[] buffer = new byte[4096];
+
+        while ((nRead = is.read(buffer, 0, buffer.length)) != -1) {
+            os.write(buffer, 0, nRead);
+        }
+
+        final byte[] data = os.toByteArray();
+
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                OfflineManager.getInstance(context.getApplicationContext()).putTileWithUrlTemplate(
+                    urlTemplate, pixelRatio, x, y, z, data,
+                    new OfflineManager.PutTileCallback() {
+                        @Override
+                        public void onComplete() {
+                            // don't resolve promise in case some other tile has an error
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            promise.reject(new JSApplicationIllegalArgumentException(error));
+                        }
+                    }
+                );
+            }
+        });
+    }
+
+    @ReactMethod
+    public void putTilesFromMBTiles(String path, String urlTemplate, float pixelRatio, Promise promise) {
+        try {
+            SQLiteDatabase db = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY);
+            Cursor cursor = db.query("tiles", null, null, null, null, null, null, null);
+            try {
+                while (cursor.moveToNext()) {
+                    int z = cursor.getInt(0);
+                    int x = cursor.getInt(1);
+                    int y = cursor.getInt(2);
+                    int yFlipped = (1 << z) - 1 - y;
+                    byte[] gzippedData = cursor.getBlob(3);
+
+                    gunzipAndPutTile(urlTemplate, pixelRatio, x, yFlipped, z, gzippedData, promise);
+                }
+            } catch (Exception e) {
+                promise.reject(new JSApplicationIllegalArgumentException(e.getMessage()));
+            } finally {
+                cursor.close();
+                db.close();
+            }
+        } catch (Exception e) {
+            promise.reject(new JSApplicationIllegalArgumentException(e.getMessage()));
+        }
     }
 }
