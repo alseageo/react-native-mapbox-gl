@@ -774,9 +774,8 @@ RCT_EXPORT_METHOD(setSource:(nonnull NSNumber *)reactTag
                       return;
                   }
               } else {
-                  NSURL *url = [NSURL URLWithString:dataString];
                   if (!sourceFromMap) {
-                      MGLShapeSource *source = [[MGLShapeSource alloc] initWithIdentifier:id URL:url options:options];
+                      MGLShapeSource *source = [[MGLShapeSource alloc] initWithIdentifier:id URL:[NSURL URLWithString:dataString] options:options];
                       if (![mapView addSource:source]) {
                           reject(@"map_style_not_loaded", @"setSource(): style has not finished loading", nil);
                           return;
@@ -790,8 +789,39 @@ RCT_EXPORT_METHOD(setSource:(nonnull NSNumber *)reactTag
                       return;
                   }
               }
+          } else if ([typeString isEqualToString:@"vector"]) {
+              MGLSource *previousSource = [mapView styleSourceWithIdentifier:id];
+              if (previousSource) {
+                  if (![mapView removeSource:previousSource]) {
+                      reject(@"map_style_not_loaded", @"setSource(): style has not finished loading", nil);
+                      return;
+                  }
+              }
+              NSString *urlString = sourceJson[@"url"];
+              MGLVectorSource *source;
+              if (urlString) {
+                  source = [[MGLVectorSource alloc] initWithIdentifier:id configurationURL:[NSURL URLWithString:urlString]];
+              } else {
+                  NSArray *tiles = sourceJson[@"tiles"];
+                  NSNumber *minzoom = sourceJson[@"minzoom"];
+                  NSNumber *maxzoom = sourceJson[@"maxzoom"];
+                  NSMutableDictionary *options = [NSMutableDictionary dictionaryWithCapacity:2];
+                  if (minzoom) {
+                      [options setObject:minzoom forKey:MGLTileSourceOptionMinimumZoomLevel];
+                  }
+                  if (maxzoom) {
+                      [options setObject:maxzoom forKey:MGLTileSourceOptionMaximumZoomLevel];
+                  }
+                  source = [[MGLVectorSource alloc] initWithIdentifier:id tileURLTemplates:tiles options:options];
+              }
+              if (![mapView addSource:source]) {
+                  reject(@"map_style_not_loaded", @"setSource(): style has not finished loading", nil);
+                  return;
+              }
+              resolve(nil);
+              return;
           } else {
-              reject(@"invalid_arguments", @"setSource(): type 'geojson' is the only type currently supported", nil);
+              reject(@"invalid_arguments", @"setSource(): only types 'geojson' and 'vector' are currently supported", nil);
               return;
           }
       }
@@ -806,7 +836,7 @@ RCT_EXPORT_METHOD(removeSource:(nonnull NSNumber *)reactTag
   [_bridge.uiManager addUIBlock:^(RCTUIManager *uiManager, NSDictionary<NSNumber *, RCTMapboxGL *> *viewRegistry) {
       RCTMapboxGL *mapView = viewRegistry[reactTag];
       if ([mapView isKindOfClass:[RCTMapboxGL class]]) {
-          MGLStyleLayer *source = [mapView styleSourceWithIdentifier:sourceId];
+          MGLSource *source = [mapView styleSourceWithIdentifier:sourceId];
           if (!source) {
               reject(@"invalid_arguments", @"removeSource(): cannot remove a source that does not exist", nil);
               return;
