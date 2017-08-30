@@ -565,14 +565,48 @@ public class ReactNativeMapboxGLManager extends SimpleViewManager<ReactNativeMap
                     return;
                 }
             }
+        } else if (new String("vector").equals(sourceType)) {
+            try {
+                Source sourceFromMap = view.getSource(id);
+                if (sourceFromMap != null) {
+                    view.removeSource(id);
+                }
+            } catch (NoSuchSourceException e) {}
+            VectorSource newSource;
+            if (sourceJson.hasKey("url")) {
+                newSource = new VectorSource(id, sourceJson.getString("url"));
+            } else if (sourceJson.hasKey("tiles")) {
+                TileSet tiles = new TileSet("2.2.0", ReadableArrToStringArr(sourceJson.getArray("tiles"), 0));
+                if (sourceJson.hasKey("minzoom")) {
+                    tiles.setMinZoom((float)sourceJson.getDouble("minzoom"));
+                }
+                if (sourceJson.hasKey("maxzoom")) {
+                    tiles.setMaxZoom((float)sourceJson.getDouble("maxzoom"));
+                }
+                newSource = new VectorSource(id, tiles);
+            } else {
+                callbackArgs.pushString("setSource(): type 'vector' must have either a 'url' or 'tiles' attribute");
+                fireCallback(callbackId, callbackArgs);
+                return;
+            }
+            view.addSource(newSource);
         } else {
-            callbackArgs.pushString("setSource(): only sources of type 'geojson' are current supported");
+            callbackArgs.pushString("setSource(): only types 'geojson' and 'vector' are currently supported");
             fireCallback(callbackId, callbackArgs);
             return;
         }
 
         callbackArgs.pushString(null); // push null error message
         fireCallback(callbackId, callbackArgs);
+    }
+
+    static String[] ReadableArrToStringArr(ReadableArray readArr, int startValue) {
+        int arrSize = readArr.size() - startValue;
+        String[] arr = new String[arrSize];
+        for (int i = 0; i < arrSize; i++) {
+            arr[i] = readArr.getString(i+startValue);
+        }
+        return arr;
     }
 
     public void removeSource(ReactNativeMapboxGLView view, String id, int callbackId) {
