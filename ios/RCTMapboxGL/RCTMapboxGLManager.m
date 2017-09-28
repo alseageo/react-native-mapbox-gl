@@ -784,7 +784,7 @@ RCT_EXPORT_METHOD(setSource:(nonnull NSNumber *)reactTag
                       return;
                   }
                   if ([sourceFromMap respondsToSelector:@selector(setURL:)]) {
-                      [sourceFromMap performSelector:@selector(setURL:) withObject:url];
+                      [sourceFromMap performSelector:@selector(setURL:) withObject:[NSURL URLWithString:dataString]];
                       resolve(nil);
                       return;
                   }
