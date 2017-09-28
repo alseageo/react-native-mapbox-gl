@@ -105,7 +105,7 @@ NSString *const RCTMapboxGLErrorDomain = @"com.mapbox.reactnativemapboxgl.ErrorD
                     NSArray *<%- camelize(prop.name) %>Array = stop[1];
                     UIEdgeInsets insets = UIEdgeInsetsMake([<%- camelize(prop.name) %>Array[0] floatValue], [<%- camelize(prop.name) %>Array[3] floatValue], [<%- camelize(prop.name) %>Array[2] floatValue], [<%- camelize(prop.name) %>Array[1] floatValue]);
                     [stopsDict setObject:[MGLStyleValue valueWithRawValue:[NSValue valueWithUIEdgeInsets:insets]] forKey:stop[0]];
-<% } else if (prop.name.includes('offset') || prop.name.includes('translate')) { -%>
+<% } else if ((prop.name.includes('offset') || prop.name.includes('translate')) && !prop.name.includes('line-offset')) { -%>
                     CGVector vector = CGVectorMake([stop[1][0] floatValue], [stop[1][1] floatValue]);
                     [stopsDict setObject:[MGLStyleValue valueWithRawValue:[NSValue valueWithCGVector:vector]] forKey:stop[0]];
 <% } else { -%>
@@ -137,7 +137,7 @@ NSString *const RCTMapboxGLErrorDomain = @"com.mapbox.reactnativemapboxgl.ErrorD
                 NSArray *<%- camelize(prop.name) %>Array = layoutProperties[@"<%- prop.name %>"];
                 UIEdgeInsets insets = UIEdgeInsetsMake([<%- camelize(prop.name) %>Array[0] floatValue], [<%- camelize(prop.name) %>Array[3] floatValue], [<%- camelize(prop.name) %>Array[2] floatValue], [<%- camelize(prop.name) %>Array[1] floatValue]);
                 MGLStyleValue *<%- camelize(prop.name) %>Value = [MGLStyleValue valueWithRawValue:[NSValue valueWithUIEdgeInsets:insets]];
-<% } else if (prop.name.includes('offset') || prop.name.includes('translate')) { -%>
+<% } else if ((prop.name.includes('offset') || prop.name.includes('translate')) && !prop.name.includes('line-offset')) { -%>
                 CGVector vector = CGVectorMake([<%- prop.propertyType %>Properties[@"<%- prop.name %>"][0] floatValue], [<%- prop.propertyType %>Properties[@"<%- prop.name %>"][1] floatValue]);
                 MGLStyleValue *<%- camelize(prop.name) %>Value = [MGLStyleValue valueWithRawValue:[NSValue valueWithCGVector:vector]];
 <% } else { -%>
