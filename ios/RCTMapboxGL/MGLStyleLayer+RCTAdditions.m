@@ -459,8 +459,7 @@ NSString *const RCTMapboxGLErrorDomain = @"com.mapbox.reactnativemapboxgl.ErrorD
                 NSArray *stops = paintProperties[@"line-offset"][@"stops"];
                 NSMutableDictionary *stopsDict = [[NSMutableDictionary alloc] init];
                 for (id stop in stops) {
-                    CGVector vector = CGVectorMake([stop[1][0] floatValue], [stop[1][1] floatValue]);
-                    [stopsDict setObject:[MGLStyleValue valueWithRawValue:[NSValue valueWithCGVector:vector]] forKey:stop[0]];
+                    [stopsDict setObject:[MGLStyleValue valueWithRawValue:stop[1]] forKey:stop[0]];
                 }
                 NSMutableDictionary *optionsDict = [[NSMutableDictionary alloc] init];
                 NSNumber *baseNumber = paintProperties[@"line-offset"][@"base"];
@@ -472,8 +471,7 @@ NSString *const RCTMapboxGLErrorDomain = @"com.mapbox.reactnativemapboxgl.ErrorD
                 MGLStyleValue *lineOffsetValue = [MGLStyleValue valueWithInterpolationMode:MGLInterpolationModeExponential cameraStops:stopsDict options:optionsDict];
                 [layer setLineOffset:lineOffsetValue];
             } else {
-                CGVector vector = CGVectorMake([paintProperties[@"line-offset"][0] floatValue], [paintProperties[@"line-offset"][1] floatValue]);
-                MGLStyleValue *lineOffsetValue = [MGLStyleValue valueWithRawValue:[NSValue valueWithCGVector:vector]];
+                MGLStyleValue *lineOffsetValue = [MGLStyleValue valueWithRawValue:paintProperties[@"line-offset"]];
                 [layer setLineOffset:lineOffsetValue];
             }
         }
