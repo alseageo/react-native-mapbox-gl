@@ -1,8 +1,9 @@
 'use strict';
 
-import React, { Component, PropTypes } from 'react';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import {
-  View,
+  ViewPropTypes,
   NativeModules,
   NativeAppEventEmitter,
   requireNativeComponent,
@@ -87,8 +88,15 @@ function getMetricsEnabled() {
 
 // Access token
 function setAccessToken(token: string) {
-  MapboxGLManager.setAccessToken(token);
+  const promise = MapboxGLManager.setAccessToken(token);
+  return promise;
 }
+
+// Connected
+function setConnected(connected: boolean) {
+  MapboxGLManager.setConnected(connected);
+}
+
 
 // Offline
 function bindCallbackToPromise(callback, promise) {
@@ -99,6 +107,15 @@ function bindCallbackToPromise(callback, promise) {
       callback(err);
     })
   }
+}
+
+function initializeOfflinePacks() {
+  return new Promise((resolve) => {
+    NativeAppEventEmitter.addListener('MapboxOfflinePacksLoaded', () => {
+      resolve();
+    });
+    MapboxGLManager.initializeOfflinePacks();
+  });
 }
 
 function addOfflinePack(options, callback) {
@@ -447,7 +464,7 @@ class MapView extends Component {
   }
 
   static propTypes = {
-    ...View.propTypes,
+    ...ViewPropTypes,
 
     initialZoomLevel: PropTypes.number,
     initialDirection: PropTypes.number,
@@ -663,7 +680,11 @@ const Mapbox = {
   mapStyles, userTrackingMode, userLocationVerticalAlignment, unknownResourceCount,
   getMetricsEnabled, setMetricsEnabled,
   setAccessToken,
-  addOfflinePack, getOfflinePacks, removeOfflinePack,
+  setConnected,
+  initializeOfflinePacks,
+  addOfflinePack,
+  getOfflinePacks,
+  removeOfflinePack,
   addOfflinePackProgressListener,
   addOfflineMaxAllowedTilesListener,
   addOfflineErrorListener,

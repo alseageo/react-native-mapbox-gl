@@ -37,6 +37,7 @@ import com.facebook.react.bridge.ReadableNativeMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter;
 import com.facebook.react.uimanager.annotations.ReactProp;
 import com.mapbox.mapboxsdk.MapboxAccountManager;
@@ -142,15 +143,19 @@ public class ReactNativeMapboxGLModule extends ReactContextBaseJavaModule {
     // Access Token
 
     @ReactMethod
-    public void setAccessToken(final String accessToken) {
+    public void setAccessToken(final String accessToken, final Promise promise) {
         if (accessToken == null || accessToken.length() == 0 || accessToken.equals("your-mapbox.com-access-token")) {
             throw new JSApplicationIllegalArgumentException("Invalid access token. Register to mapbox.com and request an access token, then pass it to setAccessToken()");
         }
         if (initialized) {
             String oldToken = MapboxAccountManager.getInstance().getAccessToken();
             if (!oldToken.equals(accessToken)) {
-                throw new JSApplicationIllegalArgumentException("Mapbox access token cannot be initialized twice with different values");
+                JSApplicationIllegalArgumentException error =
+                        new JSApplicationIllegalArgumentException("Mapbox access token cannot be initialized twice with different values");
+                promise.reject(error);
+                throw error;
             }
+            promise.resolve(null);
             return;
         }
         initialized = true;
@@ -158,9 +163,15 @@ public class ReactNativeMapboxGLModule extends ReactContextBaseJavaModule {
             @Override
             public void run() {
                 MapboxAccountManager.start(context.getApplicationContext(), accessToken);
+                promise.resolve(null);
             }
         });
-        initializeOfflinePacks();
+    }
+
+    // Connected
+    @ReactMethod
+    public void setConnected(boolean connected) {
+        MapboxAccountManager.getInstance().setConnected(connected);
     }
 
     // Metrics
@@ -268,7 +279,7 @@ public class ReactNativeMapboxGLModule extends ReactContextBaseJavaModule {
     }
 
     class OfflineRegionsInitialRequest implements OfflineManager.ListOfflineRegionsCallback {
-        ReactNativeMapboxGLModule module;
+        private final ReactNativeMapboxGLModule module;
 
         OfflineRegionsInitialRequest(ReactNativeMapboxGLModule module) {
             this.module = module;
@@ -297,6 +308,10 @@ public class ReactNativeMapboxGLModule extends ReactContextBaseJavaModule {
                     }
                 });
             }
+
+            module.context
+                    .getJSModule(RCTNativeAppEventEmitter.class)
+                    .emit("MapboxOfflinePacksLoaded", null);
         }
 
         @Override
@@ -305,6 +320,7 @@ public class ReactNativeMapboxGLModule extends ReactContextBaseJavaModule {
         }
     }
 
+    @ReactMethod
     void initializeOfflinePacks() {
         final ReactNativeMapboxGLModule _this = this;
         mainHandler.post(new Runnable() {

@@ -43,7 +43,7 @@ import { MapView } from 'react-native-mapbox-gl';
 | `contentInset` | `array` | Optional | Change the padding of the viewport of the map. Offset is in pixels. `[top, right, bottom, left]` `[0, 0, 0, 0]` |
 | `style`  | React styles | Optional | Styles the actual map view container | N/A |
 | `debugActive`  | `boolean` | Optional | Turns on debug mode. | `false` |
-| `children` | `array` | Optional |  An array of custom Annotation views (iOS only). You must import Annotation view from the component and put your custom React Native view inside. Annotation view must have unique id prop defined as well as coordinate | null |
+| `children` | `array` | Optional |  An array of custom Annotation views. See [Custom Annotations](#custom-annotations). | null |
 
 
 ## Callback props
@@ -255,7 +255,7 @@ mapbox://styles/bobbysud/cigtw1pzy0000aam2346f7ex0
 
 ```javascript
 [{
-  coordinates, // required. For type polyline and polygon must be an array of arrays. For type point, single array with 2 coordinates
+  coordinates, // required. For type polyline and polygon must be an array of arrays. For type point, array as [latitude longitude]
   type, // required. One of 'point', 'polyline' or 'polygon'
   title, // optional. Title string. Appears when marker pressed
   subtitle, // optional. Subtitle string. Appears when marker pressed
@@ -343,6 +343,55 @@ re-rendered.
 
 See [the example](./example.js#L116) for an illustration of this.
 
+#### Custom Annotations
+
+If the default annotations do not offer enough options, you can embed react native
+view directly onto the map as a custom marker view.
+
+The children of the `MapView` must be `Annotation` views: `import {Annotation} from 'react-native-mapbox-gl'`.
+The `Annotation` view has the following required props:
+
+| Prop | Type | Description |
+| --- | --- | --- |
+| `id` | `string` | Unique identifier for the annotation. |
+| `coordinate` | `{latitude: number, longitude: number}` | Location of the annotation. |
+
+###### Known Bugs
+
+1. `Annotation` views do not position correctly unless they have the following style props:
+  `style={{alignItems: 'center', justifyContent: 'center', position: 'absolute'}}`.
+
+2. React Native views do not work with the regular `onAnnotationTapped` on need to
+   add their own tap handling (e.g. by using a `TouchableHighlight`).
+
+###### Example
+
+```
+<MapView {...MapView props}>
+  <Annotation
+    id="annotation1"
+    coordinate={{latitude: 37.5, longitude: -122.2}}
+    style={{alignItems: 'center', justifyContent: 'center', position: 'absolute'}}
+  >
+    <View style={{width: 100, height: 100, borderWidth: 4, borderColor: 'blue', borderRadius: 50, backgroundColor: 'white', flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <Text>React View</Text>
+    </View>
+  </Annotation>
+  <Annotation
+    id="annotation2"
+    coordinate={{latitude: 37.55, longitude: -122.25}}
+    style={{alignItems: 'center', justifyContent: 'center', position: 'absolute'}}
+  >
+    <View style={{width: 200, height: 200, borderWidth: 1, borderColor: 'red', borderRadius: 50, backgroundColor: 'white', flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <Image
+        style={{width: 100, height: 100}}
+        source={{uri: 'some-image-uri'}}
+      />
+    </View>
+  </Annotation>
+</MapView>
+```
+
 ## Mapbox Telemetry (metrics)
 
 If you hide the attribution button, you need to provide the user with a way to
@@ -355,12 +404,13 @@ To enable or disable metrics, use `Mapbox.setMetricsEnabled(enabled: boolean)`.
 
 ## Offline
 
-There are 3 main methods for interacting with the offline API:
-* `Mapbox.addOfflinePackForRegion`: Creates an offline pack
+There are 4 main methods for interacting with the offline API:
+* `Mapbox.initializeOfflinePacks()`: Initializes the offline packs handlers.
+* `Mapbox.addOfflinePack`: Creates an offline pack
 * `Mapbox.getOfflinePacks`: Returns an array of all offline packs on the device
 * `Mapbox.removeOfflinePack`: Removes a single pack
 
-Before using them, don't forget to set an access token with `Mapbox.setAccessToken(accessToken)`
+Before using offline packs, you must call `Mapbox.initializeOfflinePacks()`.
 
 These methods return a promise, but they also accept a callback as the last
 argument with the signature `(err, value) => {}`.
