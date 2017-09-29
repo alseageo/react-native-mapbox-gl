@@ -67,6 +67,7 @@ package com.mapbox.reactnativemapboxgl;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableType;
+import com.mapbox.mapboxsdk.style.functions.*;
 import com.mapbox.mapboxsdk.style.layers.*;
 import com.mapbox.mapboxsdk.style.sources.*;
 
@@ -168,7 +169,7 @@ public class RNMGLLayerFactory {
 
 <% for (const layer of layers) { -%>
     static <%- upperCamelize(layer.type) %>Layer <%- camelize(layer.type) %>LayerFromJson(ReadableMap layerJson) {
-        ArrayList<Property> properties = new ArrayList<Property>();
+        ArrayList<PropertyValue> properties = new ArrayList<PropertyValue>();
 
 <% const propToJava = (prop) => { -%>
 <% if (typeToReadableType.hasOwnProperty(prop.type)) { -%>
@@ -186,9 +187,9 @@ public class RNMGLLayerFactory {
                 else if (<%- prop.propertyType %>Properties.getType("<%- prop.name %>") == ReadableType.Map) {
                     ReadableMap map = <%- prop.propertyType %>Properties.getMap("<%- prop.name %>");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.<%- camelize(prop.name) %>(
 <% if (prop.type === 'array') { -%>
@@ -199,12 +200,16 @@ public class RNMGLLayerFactory {
                             )
                         );
                     }
+<% if (prop.function === 'interpolated') { -%>
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.<%- camelize(prop.name) %>(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.<%- camelize(prop.name) %>(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.<%- camelize(prop.name) %>(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.<%- camelize(prop.name) %>(Function.zoom(new ExponentialStops(stopsArray))));
                     }
+<% } else { -%>
+                    properties.add(PropertyFactory.<%- camelize(prop.name) %>(Function.zoom(new IntervalStops(stopsArray))));
+<% } -%>
                 }
 <% } -%>
             }

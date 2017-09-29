@@ -533,7 +533,7 @@ public class ReactNativeMapboxGLManager extends ViewGroupManager<ReactNativeMapb
         WritableArray callbackArgs = Arguments.createArray();
         try {
             view.setLayerVisibility(id, value);
-        } catch (NoSuchLayerException e) {
+        } catch (Exception e) {
             callbackArgs.pushString(String.format("setLayerVisibility(): layer '%s' does not exist.", id));
             fireCallback(callbackId, callbackArgs);
             return;
@@ -552,7 +552,11 @@ public class ReactNativeMapboxGLManager extends ViewGroupManager<ReactNativeMapb
 
         try {
             Layer layer = RNMGLLayerFactory.layerFromJson(layerJson);
-            view.addLayer(layer, before);
+            if (before == null) {
+                view.addLayer(layer);
+            } else {
+                view.addLayerBelow(layer, before);
+            }
         } catch (InvalidLayerException e) {
             callbackArgs.pushString(e.getMessage());
             fireCallback(callbackId, callbackArgs);
@@ -567,7 +571,7 @@ public class ReactNativeMapboxGLManager extends ViewGroupManager<ReactNativeMapb
         WritableArray callbackArgs = Arguments.createArray();
         try {
           view.removeLayer(id);
-        } catch (NoSuchLayerException e) {
+        } catch (Exception e) {
           callbackArgs.pushString(String.format("removeLayer(): layer '%s' does not exist.", id));
           fireCallback(callbackId, callbackArgs);
           return;
@@ -616,15 +620,15 @@ public class ReactNativeMapboxGLManager extends ViewGroupManager<ReactNativeMapb
                 String data = sourceJson.getString("data");
                 try {
                     Source sourceFromMap = view.getSource(id);
-                    if (sourceFromMap == null) throw new NoSuchSourceException("setSource(): source does not exist");
+                    if (sourceFromMap == null) throw new Exception("setSource(): source does not exist");
                     GeoJsonSource typecastSource = (GeoJsonSource) sourceFromMap;
                     typecastSource.setGeoJson(data);
                 } catch (ClassCastException exception) {
                     try {
                         view.removeSource(id);
-                    } catch (NoSuchSourceException e) {}
+                    } catch (Exception e) {}
                     view.addSource(new GeoJsonSource(id, data, options));
-                } catch (NoSuchSourceException exception) {
+                } catch (Exception exception) {
                     view.addSource(new GeoJsonSource(id, data, options));
                 }
             } else {
@@ -632,15 +636,15 @@ public class ReactNativeMapboxGLManager extends ViewGroupManager<ReactNativeMapb
                     URL url = new URL(sourceJson.getString("data"));
                     try {
                         Source sourceFromMap = view.getSource(id);
-                        if (sourceFromMap == null) throw new NoSuchSourceException("setSource(): source does not exist");
+                        if (sourceFromMap == null) throw new Exception("setSource(): source does not exist");
                         GeoJsonSource typecastSource = (GeoJsonSource) sourceFromMap;
                         typecastSource.setUrl(url);
                     } catch (ClassCastException exception) {
                         try {
                             view.removeSource(id);
-                        } catch (NoSuchSourceException e) {}
+                        } catch (Exception e) {}
                         view.addSource(new GeoJsonSource(id, url, options));
-                    } catch (NoSuchSourceException exception) {
+                    } catch (Exception exception) {
                         view.addSource(new GeoJsonSource(id, url, options));
                     }
                 } catch (MalformedURLException exception) {
@@ -655,7 +659,7 @@ public class ReactNativeMapboxGLManager extends ViewGroupManager<ReactNativeMapb
                 if (sourceFromMap != null) {
                     view.removeSource(id);
                 }
-            } catch (NoSuchSourceException e) {}
+            } catch (Exception e) {}
             VectorSource newSource;
             if (sourceJson.hasKey("url")) {
                 newSource = new VectorSource(id, sourceJson.getString("url"));
@@ -697,8 +701,8 @@ public class ReactNativeMapboxGLManager extends ViewGroupManager<ReactNativeMapb
         WritableArray callbackArgs = Arguments.createArray();
         try {
           view.removeSource(id);
-        } catch (NoSuchSourceException e) {
-          callbackArgs.pushString(String.format("removeSource(): layer '%s' does not exist.", id));
+        } catch (Exception e) {
+          callbackArgs.pushString(String.format("removeSource(): source '%s' does not exist.", id));
           fireCallback(callbackId, callbackArgs);
           return;
         }
