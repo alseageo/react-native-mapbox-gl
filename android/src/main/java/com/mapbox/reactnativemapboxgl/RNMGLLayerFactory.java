@@ -4,6 +4,8 @@ package com.mapbox.reactnativemapboxgl;
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableType;
+import com.mapbox.mapboxsdk.style.functions.*;
+import com.mapbox.mapboxsdk.style.functions.stops.*;
 import com.mapbox.mapboxsdk.style.layers.*;
 import com.mapbox.mapboxsdk.style.sources.*;
 
@@ -194,7 +196,7 @@ public class RNMGLLayerFactory {
     }
 
     static FillLayer fillLayerFromJson(ReadableMap layerJson) {
-        ArrayList<Property> properties = new ArrayList<Property>();
+        ArrayList<PropertyValue> properties = new ArrayList<PropertyValue>();
 
         if (layerJson.hasKey("paint")) {
             ReadableMap paintProperties = layerJson.getMap("paint");
@@ -207,21 +209,16 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("fill-antialias") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("fill-antialias");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.fillAntialias(
                                 stops.getArray(i).getBoolean(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.fillAntialias(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.fillAntialias(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.fillAntialias(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (paintProperties.hasKey("fill-opacity")) {
@@ -233,9 +230,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("fill-opacity") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("fill-opacity");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.fillOpacity(
                                 (float)stops.getArray(i).getDouble(1)
@@ -243,10 +240,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.fillOpacity(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.fillOpacity(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.fillOpacity(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.fillOpacity(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -259,9 +256,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("fill-color") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("fill-color");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.fillColor(
                                 stops.getArray(i).getString(1)
@@ -269,10 +266,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.fillColor(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.fillColor(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.fillColor(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.fillColor(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -285,9 +282,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("fill-outline-color") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("fill-outline-color");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.fillOutlineColor(
                                 stops.getArray(i).getString(1)
@@ -295,10 +292,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.fillOutlineColor(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.fillOutlineColor(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.fillOutlineColor(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.fillOutlineColor(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -311,9 +308,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("fill-translate") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("fill-translate");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.fillTranslate(
                                 ReadableArrToNumberArr(stops.getArray(i).getArray(1), 0)
@@ -321,10 +318,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.fillTranslate(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.fillTranslate(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.fillTranslate(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.fillTranslate(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -337,21 +334,16 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("fill-translate-anchor") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("fill-translate-anchor");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.fillTranslateAnchor(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.fillTranslateAnchor(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.fillTranslateAnchor(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.fillTranslateAnchor(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (paintProperties.hasKey("fill-pattern")) {
@@ -363,21 +355,16 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("fill-pattern") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("fill-pattern");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.fillPattern(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.fillPattern(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.fillPattern(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.fillPattern(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
         }
@@ -386,7 +373,7 @@ public class RNMGLLayerFactory {
             throw new InvalidLayerException(String.format("addLayer(): layer '%s' must have a valid 'source' attribute", layerJson.getString("id")));
         }
         FillLayer layer = new FillLayer(layerJson.getString("id"), layerJson.getString("source"))
-            .withProperties(properties.toArray(new Property[0]));
+            .withProperties(properties.toArray(new PropertyValue[0]));
 
         if (layerJson.hasKey("source-layer")) {
             layer.setSourceLayer(layerJson.getString("source-layer"));
@@ -406,7 +393,7 @@ public class RNMGLLayerFactory {
     }
 
     static LineLayer lineLayerFromJson(ReadableMap layerJson) {
-        ArrayList<Property> properties = new ArrayList<Property>();
+        ArrayList<PropertyValue> properties = new ArrayList<PropertyValue>();
 
         if (layerJson.hasKey("paint")) {
             ReadableMap paintProperties = layerJson.getMap("paint");
@@ -419,9 +406,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("line-opacity") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("line-opacity");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.lineOpacity(
                                 (float)stops.getArray(i).getDouble(1)
@@ -429,10 +416,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.lineOpacity(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.lineOpacity(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.lineOpacity(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.lineOpacity(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -445,9 +432,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("line-color") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("line-color");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.lineColor(
                                 stops.getArray(i).getString(1)
@@ -455,10 +442,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.lineColor(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.lineColor(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.lineColor(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.lineColor(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -471,9 +458,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("line-translate") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("line-translate");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.lineTranslate(
                                 ReadableArrToNumberArr(stops.getArray(i).getArray(1), 0)
@@ -481,10 +468,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.lineTranslate(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.lineTranslate(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.lineTranslate(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.lineTranslate(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -497,21 +484,16 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("line-translate-anchor") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("line-translate-anchor");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.lineTranslateAnchor(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.lineTranslateAnchor(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.lineTranslateAnchor(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.lineTranslateAnchor(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (paintProperties.hasKey("line-width")) {
@@ -523,9 +505,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("line-width") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("line-width");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.lineWidth(
                                 (float)stops.getArray(i).getDouble(1)
@@ -533,10 +515,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.lineWidth(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.lineWidth(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.lineWidth(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.lineWidth(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -549,9 +531,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("line-gap-width") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("line-gap-width");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.lineGapWidth(
                                 (float)stops.getArray(i).getDouble(1)
@@ -559,10 +541,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.lineGapWidth(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.lineGapWidth(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.lineGapWidth(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.lineGapWidth(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -575,9 +557,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("line-offset") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("line-offset");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.lineOffset(
                                 (float)stops.getArray(i).getDouble(1)
@@ -585,10 +567,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.lineOffset(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.lineOffset(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.lineOffset(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.lineOffset(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -601,9 +583,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("line-blur") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("line-blur");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.lineBlur(
                                 (float)stops.getArray(i).getDouble(1)
@@ -611,10 +593,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.lineBlur(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.lineBlur(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.lineBlur(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.lineBlur(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -627,21 +609,16 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("line-dasharray") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("line-dasharray");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.lineDasharray(
                                 ReadableArrToNumberArr(stops.getArray(i).getArray(1), 0)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.lineDasharray(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.lineDasharray(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.lineDasharray(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (paintProperties.hasKey("line-pattern")) {
@@ -653,21 +630,16 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("line-pattern") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("line-pattern");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.linePattern(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.linePattern(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.linePattern(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.linePattern(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
         }
@@ -682,21 +654,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("line-cap") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("line-cap");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.lineCap(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.lineCap(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.lineCap(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.lineCap(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("line-join")) {
@@ -708,21 +675,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("line-join") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("line-join");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.lineJoin(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.lineJoin(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.lineJoin(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.lineJoin(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("line-miter-limit")) {
@@ -734,9 +696,9 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("line-miter-limit") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("line-miter-limit");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.lineMiterLimit(
                                 (float)stops.getArray(i).getDouble(1)
@@ -744,10 +706,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.lineMiterLimit(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.lineMiterLimit(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.lineMiterLimit(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.lineMiterLimit(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -760,9 +722,9 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("line-round-limit") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("line-round-limit");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.lineRoundLimit(
                                 (float)stops.getArray(i).getDouble(1)
@@ -770,10 +732,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.lineRoundLimit(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.lineRoundLimit(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.lineRoundLimit(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.lineRoundLimit(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -783,7 +745,7 @@ public class RNMGLLayerFactory {
             throw new InvalidLayerException(String.format("addLayer(): layer '%s' must have a valid 'source' attribute", layerJson.getString("id")));
         }
         LineLayer layer = new LineLayer(layerJson.getString("id"), layerJson.getString("source"))
-            .withProperties(properties.toArray(new Property[0]));
+            .withProperties(properties.toArray(new PropertyValue[0]));
 
         if (layerJson.hasKey("source-layer")) {
             layer.setSourceLayer(layerJson.getString("source-layer"));
@@ -803,7 +765,7 @@ public class RNMGLLayerFactory {
     }
 
     static SymbolLayer symbolLayerFromJson(ReadableMap layerJson) {
-        ArrayList<Property> properties = new ArrayList<Property>();
+        ArrayList<PropertyValue> properties = new ArrayList<PropertyValue>();
 
         if (layerJson.hasKey("paint")) {
             ReadableMap paintProperties = layerJson.getMap("paint");
@@ -816,9 +778,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("icon-opacity") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("icon-opacity");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconOpacity(
                                 (float)stops.getArray(i).getDouble(1)
@@ -826,10 +788,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconOpacity(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.iconOpacity(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.iconOpacity(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.iconOpacity(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -842,9 +804,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("icon-color") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("icon-color");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconColor(
                                 stops.getArray(i).getString(1)
@@ -852,10 +814,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconColor(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.iconColor(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.iconColor(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.iconColor(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -868,9 +830,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("icon-halo-color") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("icon-halo-color");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconHaloColor(
                                 stops.getArray(i).getString(1)
@@ -878,10 +840,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconHaloColor(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.iconHaloColor(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.iconHaloColor(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.iconHaloColor(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -894,9 +856,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("icon-halo-width") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("icon-halo-width");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconHaloWidth(
                                 (float)stops.getArray(i).getDouble(1)
@@ -904,10 +866,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconHaloWidth(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.iconHaloWidth(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.iconHaloWidth(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.iconHaloWidth(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -920,9 +882,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("icon-halo-blur") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("icon-halo-blur");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconHaloBlur(
                                 (float)stops.getArray(i).getDouble(1)
@@ -930,10 +892,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconHaloBlur(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.iconHaloBlur(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.iconHaloBlur(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.iconHaloBlur(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -946,9 +908,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("icon-translate") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("icon-translate");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconTranslate(
                                 ReadableArrToNumberArr(stops.getArray(i).getArray(1), 0)
@@ -956,10 +918,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconTranslate(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.iconTranslate(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.iconTranslate(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.iconTranslate(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -972,21 +934,16 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("icon-translate-anchor") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("icon-translate-anchor");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconTranslateAnchor(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconTranslateAnchor(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.iconTranslateAnchor(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.iconTranslateAnchor(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (paintProperties.hasKey("text-opacity")) {
@@ -998,9 +955,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("text-opacity") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("text-opacity");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textOpacity(
                                 (float)stops.getArray(i).getDouble(1)
@@ -1008,10 +965,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textOpacity(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.textOpacity(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.textOpacity(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.textOpacity(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1024,9 +981,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("text-color") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("text-color");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textColor(
                                 stops.getArray(i).getString(1)
@@ -1034,10 +991,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textColor(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.textColor(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.textColor(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.textColor(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1050,9 +1007,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("text-halo-color") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("text-halo-color");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textHaloColor(
                                 stops.getArray(i).getString(1)
@@ -1060,10 +1017,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textHaloColor(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.textHaloColor(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.textHaloColor(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.textHaloColor(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1076,9 +1033,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("text-halo-width") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("text-halo-width");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textHaloWidth(
                                 (float)stops.getArray(i).getDouble(1)
@@ -1086,10 +1043,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textHaloWidth(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.textHaloWidth(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.textHaloWidth(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.textHaloWidth(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1102,9 +1059,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("text-halo-blur") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("text-halo-blur");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textHaloBlur(
                                 (float)stops.getArray(i).getDouble(1)
@@ -1112,10 +1069,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textHaloBlur(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.textHaloBlur(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.textHaloBlur(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.textHaloBlur(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1128,9 +1085,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("text-translate") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("text-translate");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textTranslate(
                                 ReadableArrToNumberArr(stops.getArray(i).getArray(1), 0)
@@ -1138,10 +1095,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textTranslate(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.textTranslate(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.textTranslate(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.textTranslate(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1154,21 +1111,16 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("text-translate-anchor") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("text-translate-anchor");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textTranslateAnchor(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textTranslateAnchor(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.textTranslateAnchor(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.textTranslateAnchor(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
         }
@@ -1183,21 +1135,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("symbol-placement") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("symbol-placement");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.symbolPlacement(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.symbolPlacement(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.symbolPlacement(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.symbolPlacement(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("symbol-spacing")) {
@@ -1209,9 +1156,9 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("symbol-spacing") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("symbol-spacing");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.symbolSpacing(
                                 (float)stops.getArray(i).getDouble(1)
@@ -1219,10 +1166,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.symbolSpacing(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.symbolSpacing(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.symbolSpacing(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.symbolSpacing(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1235,21 +1182,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("symbol-avoid-edges") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("symbol-avoid-edges");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.symbolAvoidEdges(
                                 stops.getArray(i).getBoolean(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.symbolAvoidEdges(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.symbolAvoidEdges(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.symbolAvoidEdges(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("icon-allow-overlap")) {
@@ -1261,21 +1203,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("icon-allow-overlap") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("icon-allow-overlap");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconAllowOverlap(
                                 stops.getArray(i).getBoolean(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconAllowOverlap(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.iconAllowOverlap(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.iconAllowOverlap(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("icon-ignore-placement")) {
@@ -1287,21 +1224,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("icon-ignore-placement") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("icon-ignore-placement");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconIgnorePlacement(
                                 stops.getArray(i).getBoolean(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconIgnorePlacement(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.iconIgnorePlacement(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.iconIgnorePlacement(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("icon-optional")) {
@@ -1313,21 +1245,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("icon-optional") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("icon-optional");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconOptional(
                                 stops.getArray(i).getBoolean(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconOptional(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.iconOptional(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.iconOptional(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("icon-rotation-alignment")) {
@@ -1339,21 +1266,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("icon-rotation-alignment") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("icon-rotation-alignment");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconRotationAlignment(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconRotationAlignment(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.iconRotationAlignment(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.iconRotationAlignment(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("icon-size")) {
@@ -1365,9 +1287,9 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("icon-size") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("icon-size");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconSize(
                                 (float)stops.getArray(i).getDouble(1)
@@ -1375,10 +1297,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconSize(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.iconSize(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.iconSize(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.iconSize(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1391,21 +1313,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("icon-text-fit") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("icon-text-fit");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconTextFit(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconTextFit(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.iconTextFit(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.iconTextFit(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("icon-text-fit-padding")) {
@@ -1417,9 +1334,9 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("icon-text-fit-padding") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("icon-text-fit-padding");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconTextFitPadding(
                                 ReadableArrToNumberArr(stops.getArray(i).getArray(1), 0)
@@ -1427,10 +1344,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconTextFitPadding(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.iconTextFitPadding(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.iconTextFitPadding(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.iconTextFitPadding(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1443,21 +1360,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("icon-image") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("icon-image");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconImage(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconImage(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.iconImage(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.iconImage(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("icon-rotate")) {
@@ -1469,9 +1381,9 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("icon-rotate") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("icon-rotate");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconRotate(
                                 (float)stops.getArray(i).getDouble(1)
@@ -1479,10 +1391,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconRotate(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.iconRotate(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.iconRotate(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.iconRotate(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1495,9 +1407,9 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("icon-padding") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("icon-padding");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconPadding(
                                 (float)stops.getArray(i).getDouble(1)
@@ -1505,10 +1417,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconPadding(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.iconPadding(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.iconPadding(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.iconPadding(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1521,21 +1433,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("icon-keep-upright") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("icon-keep-upright");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconKeepUpright(
                                 stops.getArray(i).getBoolean(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconKeepUpright(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.iconKeepUpright(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.iconKeepUpright(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("icon-offset")) {
@@ -1547,9 +1454,9 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("icon-offset") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("icon-offset");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.iconOffset(
                                 ReadableArrToNumberArr(stops.getArray(i).getArray(1), 0)
@@ -1557,10 +1464,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.iconOffset(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.iconOffset(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.iconOffset(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.iconOffset(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1573,21 +1480,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-pitch-alignment") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-pitch-alignment");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textPitchAlignment(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textPitchAlignment(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.textPitchAlignment(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.textPitchAlignment(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("text-rotation-alignment")) {
@@ -1599,21 +1501,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-rotation-alignment") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-rotation-alignment");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textRotationAlignment(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textRotationAlignment(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.textRotationAlignment(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.textRotationAlignment(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("text-field")) {
@@ -1625,21 +1522,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-field") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-field");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textField(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textField(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.textField(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.textField(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("text-font")) {
@@ -1651,21 +1543,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-font") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-font");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textFont(
                                 ReadableArrToStringArr(stops.getArray(i).getArray(1), 0)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textFont(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.textFont(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.textFont(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("text-size")) {
@@ -1677,9 +1564,9 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-size") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-size");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textSize(
                                 (float)stops.getArray(i).getDouble(1)
@@ -1687,10 +1574,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textSize(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.textSize(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.textSize(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.textSize(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1703,9 +1590,9 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-max-width") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-max-width");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textMaxWidth(
                                 (float)stops.getArray(i).getDouble(1)
@@ -1713,10 +1600,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textMaxWidth(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.textMaxWidth(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.textMaxWidth(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.textMaxWidth(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1729,9 +1616,9 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-line-height") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-line-height");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textLineHeight(
                                 (float)stops.getArray(i).getDouble(1)
@@ -1739,10 +1626,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textLineHeight(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.textLineHeight(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.textLineHeight(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.textLineHeight(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1755,9 +1642,9 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-letter-spacing") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-letter-spacing");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textLetterSpacing(
                                 (float)stops.getArray(i).getDouble(1)
@@ -1765,10 +1652,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textLetterSpacing(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.textLetterSpacing(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.textLetterSpacing(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.textLetterSpacing(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1781,21 +1668,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-justify") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-justify");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textJustify(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textJustify(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.textJustify(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.textJustify(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("text-anchor")) {
@@ -1807,21 +1689,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-anchor") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-anchor");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textAnchor(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textAnchor(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.textAnchor(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.textAnchor(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("text-max-angle")) {
@@ -1833,9 +1710,9 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-max-angle") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-max-angle");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textMaxAngle(
                                 (float)stops.getArray(i).getDouble(1)
@@ -1843,10 +1720,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textMaxAngle(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.textMaxAngle(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.textMaxAngle(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.textMaxAngle(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1859,9 +1736,9 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-rotate") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-rotate");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textRotate(
                                 (float)stops.getArray(i).getDouble(1)
@@ -1869,10 +1746,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textRotate(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.textRotate(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.textRotate(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.textRotate(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1885,9 +1762,9 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-padding") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-padding");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textPadding(
                                 (float)stops.getArray(i).getDouble(1)
@@ -1895,10 +1772,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textPadding(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.textPadding(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.textPadding(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.textPadding(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1911,21 +1788,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-keep-upright") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-keep-upright");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textKeepUpright(
                                 stops.getArray(i).getBoolean(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textKeepUpright(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.textKeepUpright(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.textKeepUpright(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("text-transform")) {
@@ -1937,21 +1809,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-transform") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-transform");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textTransform(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textTransform(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.textTransform(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.textTransform(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("text-offset")) {
@@ -1963,9 +1830,9 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-offset") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-offset");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textOffset(
                                 ReadableArrToNumberArr(stops.getArray(i).getArray(1), 0)
@@ -1973,10 +1840,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textOffset(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.textOffset(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.textOffset(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.textOffset(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -1989,21 +1856,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-allow-overlap") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-allow-overlap");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textAllowOverlap(
                                 stops.getArray(i).getBoolean(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textAllowOverlap(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.textAllowOverlap(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.textAllowOverlap(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("text-ignore-placement")) {
@@ -2015,21 +1877,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-ignore-placement") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-ignore-placement");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textIgnorePlacement(
                                 stops.getArray(i).getBoolean(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textIgnorePlacement(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.textIgnorePlacement(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.textIgnorePlacement(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (layoutProperties.hasKey("text-optional")) {
@@ -2041,21 +1898,16 @@ public class RNMGLLayerFactory {
                 else if (layoutProperties.getType("text-optional") == ReadableType.Map) {
                     ReadableMap map = layoutProperties.getMap("text-optional");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.textOptional(
                                 stops.getArray(i).getBoolean(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.textOptional(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.textOptional(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.textOptional(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
         }
@@ -2064,7 +1916,7 @@ public class RNMGLLayerFactory {
             throw new InvalidLayerException(String.format("addLayer(): layer '%s' must have a valid 'source' attribute", layerJson.getString("id")));
         }
         SymbolLayer layer = new SymbolLayer(layerJson.getString("id"), layerJson.getString("source"))
-            .withProperties(properties.toArray(new Property[0]));
+            .withProperties(properties.toArray(new PropertyValue[0]));
 
         if (layerJson.hasKey("source-layer")) {
             layer.setSourceLayer(layerJson.getString("source-layer"));
@@ -2084,7 +1936,7 @@ public class RNMGLLayerFactory {
     }
 
     static CircleLayer circleLayerFromJson(ReadableMap layerJson) {
-        ArrayList<Property> properties = new ArrayList<Property>();
+        ArrayList<PropertyValue> properties = new ArrayList<PropertyValue>();
 
         if (layerJson.hasKey("paint")) {
             ReadableMap paintProperties = layerJson.getMap("paint");
@@ -2097,9 +1949,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("circle-radius") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("circle-radius");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.circleRadius(
                                 (float)stops.getArray(i).getDouble(1)
@@ -2107,10 +1959,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.circleRadius(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.circleRadius(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.circleRadius(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.circleRadius(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -2123,9 +1975,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("circle-color") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("circle-color");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.circleColor(
                                 stops.getArray(i).getString(1)
@@ -2133,10 +1985,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.circleColor(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.circleColor(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.circleColor(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.circleColor(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -2149,9 +2001,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("circle-blur") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("circle-blur");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.circleBlur(
                                 (float)stops.getArray(i).getDouble(1)
@@ -2159,10 +2011,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.circleBlur(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.circleBlur(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.circleBlur(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.circleBlur(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -2175,9 +2027,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("circle-opacity") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("circle-opacity");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.circleOpacity(
                                 (float)stops.getArray(i).getDouble(1)
@@ -2185,10 +2037,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.circleOpacity(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.circleOpacity(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.circleOpacity(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.circleOpacity(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -2201,9 +2053,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("circle-translate") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("circle-translate");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.circleTranslate(
                                 ReadableArrToNumberArr(stops.getArray(i).getArray(1), 0)
@@ -2211,10 +2063,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.circleTranslate(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.circleTranslate(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.circleTranslate(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.circleTranslate(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -2227,21 +2079,16 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("circle-translate-anchor") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("circle-translate-anchor");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.circleTranslateAnchor(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.circleTranslateAnchor(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.circleTranslateAnchor(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.circleTranslateAnchor(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (paintProperties.hasKey("circle-pitch-scale")) {
@@ -2253,21 +2100,16 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("circle-pitch-scale") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("circle-pitch-scale");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.circlePitchScale(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.circlePitchScale(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.circlePitchScale(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.circlePitchScale(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
         }
@@ -2276,7 +2118,7 @@ public class RNMGLLayerFactory {
             throw new InvalidLayerException(String.format("addLayer(): layer '%s' must have a valid 'source' attribute", layerJson.getString("id")));
         }
         CircleLayer layer = new CircleLayer(layerJson.getString("id"), layerJson.getString("source"))
-            .withProperties(properties.toArray(new Property[0]));
+            .withProperties(properties.toArray(new PropertyValue[0]));
 
         if (layerJson.hasKey("source-layer")) {
             layer.setSourceLayer(layerJson.getString("source-layer"));
@@ -2296,7 +2138,7 @@ public class RNMGLLayerFactory {
     }
 
     static RasterLayer rasterLayerFromJson(ReadableMap layerJson) {
-        ArrayList<Property> properties = new ArrayList<Property>();
+        ArrayList<PropertyValue> properties = new ArrayList<PropertyValue>();
 
         if (layerJson.hasKey("paint")) {
             ReadableMap paintProperties = layerJson.getMap("paint");
@@ -2309,9 +2151,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("raster-opacity") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("raster-opacity");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.rasterOpacity(
                                 (float)stops.getArray(i).getDouble(1)
@@ -2319,10 +2161,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.rasterOpacity(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.rasterOpacity(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.rasterOpacity(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.rasterOpacity(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -2335,9 +2177,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("raster-hue-rotate") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("raster-hue-rotate");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.rasterHueRotate(
                                 (float)stops.getArray(i).getDouble(1)
@@ -2345,10 +2187,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.rasterHueRotate(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.rasterHueRotate(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.rasterHueRotate(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.rasterHueRotate(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -2361,9 +2203,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("raster-brightness-min") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("raster-brightness-min");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.rasterBrightnessMin(
                                 (float)stops.getArray(i).getDouble(1)
@@ -2371,10 +2213,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.rasterBrightnessMin(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.rasterBrightnessMin(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.rasterBrightnessMin(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.rasterBrightnessMin(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -2387,9 +2229,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("raster-brightness-max") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("raster-brightness-max");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.rasterBrightnessMax(
                                 (float)stops.getArray(i).getDouble(1)
@@ -2397,10 +2239,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.rasterBrightnessMax(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.rasterBrightnessMax(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.rasterBrightnessMax(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.rasterBrightnessMax(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -2413,9 +2255,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("raster-saturation") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("raster-saturation");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.rasterSaturation(
                                 (float)stops.getArray(i).getDouble(1)
@@ -2423,10 +2265,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.rasterSaturation(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.rasterSaturation(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.rasterSaturation(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.rasterSaturation(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -2439,9 +2281,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("raster-contrast") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("raster-contrast");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.rasterContrast(
                                 (float)stops.getArray(i).getDouble(1)
@@ -2449,10 +2291,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.rasterContrast(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.rasterContrast(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.rasterContrast(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.rasterContrast(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -2465,9 +2307,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("raster-fade-duration") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("raster-fade-duration");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.rasterFadeDuration(
                                 (float)stops.getArray(i).getDouble(1)
@@ -2475,10 +2317,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.rasterFadeDuration(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.rasterFadeDuration(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.rasterFadeDuration(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.rasterFadeDuration(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -2488,7 +2330,7 @@ public class RNMGLLayerFactory {
             throw new InvalidLayerException(String.format("addLayer(): layer '%s' must have a valid 'source' attribute", layerJson.getString("id")));
         }
         RasterLayer layer = new RasterLayer(layerJson.getString("id"), layerJson.getString("source"))
-            .withProperties(properties.toArray(new Property[0]));
+            .withProperties(properties.toArray(new PropertyValue[0]));
 
         if (layerJson.hasKey("source-layer")) {
             layer.setSourceLayer(layerJson.getString("source-layer"));
@@ -2504,7 +2346,7 @@ public class RNMGLLayerFactory {
     }
 
     static BackgroundLayer backgroundLayerFromJson(ReadableMap layerJson) {
-        ArrayList<Property> properties = new ArrayList<Property>();
+        ArrayList<PropertyValue> properties = new ArrayList<PropertyValue>();
 
         if (layerJson.hasKey("paint")) {
             ReadableMap paintProperties = layerJson.getMap("paint");
@@ -2517,9 +2359,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("background-color") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("background-color");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.backgroundColor(
                                 stops.getArray(i).getString(1)
@@ -2527,10 +2369,10 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.backgroundColor(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.backgroundColor(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.backgroundColor(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.backgroundColor(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
@@ -2543,21 +2385,16 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("background-pattern") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("background-pattern");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.backgroundPattern(
                                 stops.getArray(i).getString(1)
                             )
                         );
                     }
-                    if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.backgroundPattern(Function.zoom((float)map.getDouble("base"), stopsArray)));
-                    }
-                    else {
-                        properties.add(PropertyFactory.backgroundPattern(Function.zoom(stopsArray)));
-                    }
+                    properties.add(PropertyFactory.backgroundPattern(Function.zoom(new IntervalStops(stopsArray))));
                 }
             }
             if (paintProperties.hasKey("background-opacity")) {
@@ -2569,9 +2406,9 @@ public class RNMGLLayerFactory {
                 else if (paintProperties.getType("background-opacity") == ReadableType.Map) {
                     ReadableMap map = paintProperties.getMap("background-opacity");
                     ReadableArray stops = map.getArray("stops");
-                    Function.Stop[] stopsArray = new Function.Stop[stops.size()];
+                    Stop[] stopsArray = new Stop[stops.size()];
                     for (int i = 0; i < stops.size(); i++) {
-                        stopsArray[i] = Function.stop(
+                        stopsArray[i] = Stop.stop(
                             (float)stops.getArray(i).getDouble(0),
                             PropertyFactory.backgroundOpacity(
                                 (float)stops.getArray(i).getDouble(1)
@@ -2579,17 +2416,17 @@ public class RNMGLLayerFactory {
                         );
                     }
                     if (map.hasKey("base")) {
-                        properties.add(PropertyFactory.backgroundOpacity(Function.zoom((float)map.getDouble("base"), stopsArray)));
+                        properties.add(PropertyFactory.backgroundOpacity(Function.zoom(new ExponentialStops((float)map.getDouble("base"), stopsArray))));
                     }
                     else {
-                        properties.add(PropertyFactory.backgroundOpacity(Function.zoom(stopsArray)));
+                        properties.add(PropertyFactory.backgroundOpacity(Function.zoom(new ExponentialStops(stopsArray))));
                     }
                 }
             }
         }
 
         BackgroundLayer layer = new BackgroundLayer(layerJson.getString("id"))
-            .withProperties(properties.toArray(new Property[0]));
+            .withProperties(properties.toArray(new PropertyValue[0]));
         if (layerJson.hasKey("minzoom")) {
             layer.setMinZoom((float)layerJson.getDouble("minzoom"));
         }

@@ -33,10 +33,8 @@ import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.UiSettings;
 import com.mapbox.mapboxsdk.style.layers.Layer;
-import com.mapbox.mapboxsdk.style.layers.NoSuchLayerException;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.Source;
-import com.mapbox.mapboxsdk.style.sources.NoSuchSourceException;
 import com.mapbox.services.commons.geojson.Feature;
 
 import java.util.ArrayList;
@@ -804,24 +802,28 @@ public class ReactNativeMapboxGLView extends RelativeLayout implements
 
     // Runtime styling
 
-    public void setLayerVisibility(String id, String value) throws NoSuchLayerException {
+    public void setLayerVisibility(String id, String value) throws Exception {
         if (_map == null) { return; }
         Layer layer = _map.getLayer(id);
         if (layer == null) {
-            throw new NoSuchLayerException(String.format("Cannot set visibility of non-existent layer '%s'", id));
+            throw new Exception(String.format("Cannot set visibility of non-existent layer '%s'", id));
         }
         layer.setProperties(PropertyFactory.visibility(value));
     }
 
     public void addLayer(Layer layer, String before) {
         if (_map == null) { return; }
-        _map.addLayer(layer, before);
+        if (before == null) {
+            _map.addLayer(layer);
+        } else {
+            _map.addLayerBelow(layer, before);
+        }
     }
 
-    public void removeLayer(String id) throws NoSuchLayerException {
+    public void removeLayer(String id) throws Exception {
         if (_map == null) { return; }
         if (_map.getLayer(id) == null) {
-          throw new NoSuchLayerException(String.format("Layer '%s' does not exist", id));
+          throw new Exception(String.format("Layer '%s' does not exist", id));
         }
         _map.removeLayer(id);
     }
@@ -831,14 +833,21 @@ public class ReactNativeMapboxGLView extends RelativeLayout implements
         _map.addSource(source);
     }
 
-    public Source getSource(String id) throws NoSuchSourceException {
+    public Source getSource(String id) throws Exception {
         if (_map == null) { return null; }
-        return _map.getSource(id);
+        Source source = _map.getSource(id);
+        if (source == null) {
+            throw new Exception(String.format("Source '%s' does not exist", id));
+        }
+        return source;
     }
 
-    public void removeSource(String id) throws NoSuchSourceException {
+    public void removeSource(String id) throws Exception {
         if (_map == null) { return; }
-        _map.removeSource(id);
+        Source source = _map.removeSource(id);
+        if (source == null) {
+            throw new Exception(String.format("Source '%s' does not exist", id));
+        }
     }
 
     // Feature querying

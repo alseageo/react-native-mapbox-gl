@@ -680,7 +680,7 @@ public class ReactNativeMapboxGLModule extends ReactContextBaseJavaModule {
         mainHandler.post(new Runnable() {
             @Override
             public void run() {
-                OfflineManager.getInstance(context.getApplicationContext()).putTileWithUrlTemplate(
+                OfflineManager.getInstance(context.getApplicationContext()).putTile(
                     urlTemplate, pixelRatio, x, y, z, data,
                     new OfflineManager.PutTileCallback() {
                         @Override
