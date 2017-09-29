@@ -813,7 +813,11 @@ public class ReactNativeMapboxGLView extends RelativeLayout implements
 
     public void addLayer(Layer layer, String before) {
         if (_map == null) { return; }
-        _map.addLayer(layer, before);
+        if (before == null) {
+            _map.addLayer(layer);
+        } else {
+            _map.addLayerBelow(layer, before);
+        }
     }
 
     public void removeLayer(String id) throws Exception {
