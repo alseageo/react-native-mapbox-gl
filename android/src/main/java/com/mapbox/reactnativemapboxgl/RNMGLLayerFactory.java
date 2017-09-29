@@ -5,6 +5,7 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableType;
 import com.mapbox.mapboxsdk.style.functions.*;
+import com.mapbox.mapboxsdk.style.functions.stops.*;
 import com.mapbox.mapboxsdk.style.layers.*;
 import com.mapbox.mapboxsdk.style.sources.*;
 
@@ -372,7 +373,7 @@ public class RNMGLLayerFactory {
             throw new InvalidLayerException(String.format("addLayer(): layer '%s' must have a valid 'source' attribute", layerJson.getString("id")));
         }
         FillLayer layer = new FillLayer(layerJson.getString("id"), layerJson.getString("source"))
-            .withProperties(properties.toArray(new Property[0]));
+            .withProperties(properties.toArray(new PropertyValue[0]));
 
         if (layerJson.hasKey("source-layer")) {
             layer.setSourceLayer(layerJson.getString("source-layer"));
@@ -744,7 +745,7 @@ public class RNMGLLayerFactory {
             throw new InvalidLayerException(String.format("addLayer(): layer '%s' must have a valid 'source' attribute", layerJson.getString("id")));
         }
         LineLayer layer = new LineLayer(layerJson.getString("id"), layerJson.getString("source"))
-            .withProperties(properties.toArray(new Property[0]));
+            .withProperties(properties.toArray(new PropertyValue[0]));
 
         if (layerJson.hasKey("source-layer")) {
             layer.setSourceLayer(layerJson.getString("source-layer"));
@@ -1915,7 +1916,7 @@ public class RNMGLLayerFactory {
             throw new InvalidLayerException(String.format("addLayer(): layer '%s' must have a valid 'source' attribute", layerJson.getString("id")));
         }
         SymbolLayer layer = new SymbolLayer(layerJson.getString("id"), layerJson.getString("source"))
-            .withProperties(properties.toArray(new Property[0]));
+            .withProperties(properties.toArray(new PropertyValue[0]));
 
         if (layerJson.hasKey("source-layer")) {
             layer.setSourceLayer(layerJson.getString("source-layer"));
@@ -2117,7 +2118,7 @@ public class RNMGLLayerFactory {
             throw new InvalidLayerException(String.format("addLayer(): layer '%s' must have a valid 'source' attribute", layerJson.getString("id")));
         }
         CircleLayer layer = new CircleLayer(layerJson.getString("id"), layerJson.getString("source"))
-            .withProperties(properties.toArray(new Property[0]));
+            .withProperties(properties.toArray(new PropertyValue[0]));
 
         if (layerJson.hasKey("source-layer")) {
             layer.setSourceLayer(layerJson.getString("source-layer"));
@@ -2329,7 +2330,7 @@ public class RNMGLLayerFactory {
             throw new InvalidLayerException(String.format("addLayer(): layer '%s' must have a valid 'source' attribute", layerJson.getString("id")));
         }
         RasterLayer layer = new RasterLayer(layerJson.getString("id"), layerJson.getString("source"))
-            .withProperties(properties.toArray(new Property[0]));
+            .withProperties(properties.toArray(new PropertyValue[0]));
 
         if (layerJson.hasKey("source-layer")) {
             layer.setSourceLayer(layerJson.getString("source-layer"));
@@ -2425,7 +2426,7 @@ public class RNMGLLayerFactory {
         }
 
         BackgroundLayer layer = new BackgroundLayer(layerJson.getString("id"))
-            .withProperties(properties.toArray(new Property[0]));
+            .withProperties(properties.toArray(new PropertyValue[0]));
         if (layerJson.hasKey("minzoom")) {
             layer.setMinZoom((float)layerJson.getDouble("minzoom"));
         }

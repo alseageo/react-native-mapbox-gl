@@ -233,13 +233,13 @@ public class RNMGLLayerFactory {
 
 <% if (layer.type === 'background') { -%>
         <%- upperCamelize(layer.type) %>Layer layer = new <%- upperCamelize(layer.type) %>Layer(layerJson.getString("id"))
-            .withProperties(properties.toArray(new Property[0]));
+            .withProperties(properties.toArray(new PropertyValue[0]));
 <% } else { -%>
         if (!layerJson.hasKey("source")) {
             throw new InvalidLayerException(String.format("addLayer(): layer '%s' must have a valid 'source' attribute", layerJson.getString("id")));
         }
         <%- upperCamelize(layer.type) %>Layer layer = new <%- upperCamelize(layer.type) %>Layer(layerJson.getString("id"), layerJson.getString("source"))
-            .withProperties(properties.toArray(new Property[0]));
+            .withProperties(properties.toArray(new PropertyValue[0]));
 
         if (layerJson.hasKey("source-layer")) {
             layer.setSourceLayer(layerJson.getString("source-layer"));
