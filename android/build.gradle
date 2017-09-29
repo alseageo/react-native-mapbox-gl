@@ -23,27 +23,32 @@ dependencies {
     compile 'com.facebook.react:react-native:+'
     compile 'com.mapbox.mapboxsdk:mapbox-android-telemetry:2.1.0@aar'
     compile project(':MapboxGLAndroidSDK-release')
-    compile('com.android.support:support-annotations:23.4.0') {
-        exclude group: 'common-collections'
-        exclude group: 'common-logging'
+    compile('com.android.support:support-annotations:25.2.0') {
+        exclude group: 'commons-collections'
+        exclude group: 'commons-logging'
     }
-    compile('com.android.support:support-v4:23.4.0') {
-        exclude group: 'common-collections'
-        exclude group: 'common-logging'
+    compile('com.android.support:support-v4:25.2.0') {
+        exclude group: 'commons-collections'
+        exclude group: 'commons-logging'
     }
-    compile('com.android.support:design:23.4.0') {
-        exclude group: 'common-collections'
-        exclude group: 'common-logging'
+    compile('com.android.support:design:25.2.0') {
+        exclude group: 'commons-collections'
+        exclude group: 'commons-logging'
     }
-    compile('com.squareup.okhttp3:okhttp:3.4.1') {
-        exclude group: 'common-collections'
-        exclude group: 'common-logging'
+    compile('com.jakewharton.timber:timber:4.5.1') {
+        exclude group: 'commons-collections'
+        exclude group: 'commons-logging'
     }
-    compile('com.mapzen.android:lost:1.1.1') {
-        exclude group: 'common-collections'
-        exclude group: 'common-logging'
+    compile('com.squareup.okhttp3:okhttp:3.6.0') {
+        exclude group: 'commons-collections'
+        exclude group: 'commons-logging'
     }
-    compile('com.mapbox.mapboxsdk:mapbox-java-services:1.3.1') {
-        exclude group: 'common-collections'
+    compile('com.mapzen.android:lost:2.1.2') {
+        exclude group: 'commons-collections'
+        exclude group: 'commons-logging'
+    }
+    compile('com.mapbox.mapboxsdk:mapbox-java-geojson:2.0.0') {
+        exclude group: 'commons-collections'
+        exclude group: 'commons-logging'
     }
 }
