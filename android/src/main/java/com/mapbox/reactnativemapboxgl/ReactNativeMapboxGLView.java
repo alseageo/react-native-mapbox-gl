@@ -168,6 +168,8 @@ public class ReactNativeMapboxGLView extends RelativeLayout implements
 
         // Configure map
         _map.setMyLocationEnabled(_showsUserLocation);
+        // TODO: maybe allow configuring this? Just hardcoding this value for now to match older versions (<=4.2.2)
+        _map.getMyLocationViewSettings().setForegroundTintColor(0xff3ab2e7);
         _map.getTrackingSettings().setMyLocationTrackingMode(_locationTrackingMode);
         _map.getTrackingSettings().setMyBearingTrackingMode(_bearingTrackingMode);
         _map.setPadding(_paddingLeft, _paddingTop, _paddingRight, _paddingBottom);
