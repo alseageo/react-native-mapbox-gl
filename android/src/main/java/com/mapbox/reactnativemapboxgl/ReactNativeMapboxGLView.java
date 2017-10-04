@@ -172,6 +172,7 @@ public class ReactNativeMapboxGLView extends RelativeLayout implements
         _map.getMyLocationViewSettings().setForegroundTintColor(0xff3ab2e7);
         _map.getTrackingSettings().setMyLocationTrackingMode(_locationTrackingMode);
         _map.getTrackingSettings().setMyBearingTrackingMode(_bearingTrackingMode);
+        _map.getTrackingSettings().setDismissAllTrackingOnGesture(false);
         _map.setPadding(_paddingLeft, _paddingTop, _paddingRight, _paddingBottom);
         _map.setMinZoomPreference(_minimumZoomLevel);
         _map.setMaxZoomPreference(_maximumZoomLevel);
