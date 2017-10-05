@@ -553,7 +553,7 @@ public class ReactNativeMapboxGLManager extends ViewGroupManager<ReactNativeMapb
         try {
             Layer layer = RNMGLLayerFactory.layerFromJson(layerJson);
             view.addLayer(layer, before);
-        } catch (InvalidLayerException e) {
+        } catch (Exception e) {
             callbackArgs.pushString(e.getMessage());
             fireCallback(callbackId, callbackArgs);
             return;
