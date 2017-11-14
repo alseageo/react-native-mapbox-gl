@@ -12,8 +12,14 @@
 
 - (MGLSource*)makeSource
 {
+    NSArray *tileURLTemplates;
+    if (_tiles != nil) {
+        tileURLTemplates = _tiles;
+    } else {
+        tileURLTemplates = @[_url];
+    }
     return [[MGLRasterSource alloc] initWithIdentifier:self.id
-                                    tileURLTemplates:@[_url]
+                                    tileURLTemplates:tileURLTemplates
                                     options:[self _getOptions]];
 }
 

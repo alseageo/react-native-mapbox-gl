@@ -2,6 +2,7 @@ package com.mapbox.rctmgl.components.styles.sources;
 
 import android.view.View;
 
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.annotations.ReactProp;
@@ -51,6 +52,30 @@ public class RCTMGLRasterSourceManager extends ViewGroupManager<RCTMGLRasterSour
     @ReactProp(name="url")
     public void setURL(RCTMGLRasterSource source, String url) {
         source.setURL(url);
+    }
+
+    @ReactProp(name="tiles")
+    public void setTiles(RCTMGLVectorSource source, ReadableArray arr) {
+        String[] tiles = new String[arr.size()];
+
+        for (int i = 0; i < arr.size(); i++) {
+            String tileURL = arr.getString(i);
+            tiles[i] = tileURL;
+        }
+
+        source.setTiles(tiles);
+    }
+
+    @ReactProp(name="bounds")
+    public void setBounds(RCTMGLVectorSource source, ReadableArray arr) {
+        Float[] bounds = new Float[arr.size()];
+
+        for (int i = 0; i < arr.size(); i++) {
+            Float coord = (float)arr.getDouble(i);
+            bounds[i] = coord;
+        }
+
+        source.setBounds(bounds);
     }
 
     @ReactProp(name="attribution")

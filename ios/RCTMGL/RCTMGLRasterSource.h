@@ -13,6 +13,7 @@
 
 @property (nonatomic, copy) NSString *url;
 @property (nonatomic, copy) NSString *attribution;
+@property (nonatomic, strong) NSArray<NSString *> *tiles;
 
 @property (nonatomic, assign) NSNumber *tileSize;
 @property (nonatomic, assign) NSNumber *minZoomLevel;

@@ -14,6 +14,8 @@ public class RCTMGLRasterSource extends RCTSource<RasterSource> {
 
     private String mURL;
     private String mAttribution;
+    private String[] mTiles;
+    private Float[] mBounds;
 
     private Integer mTileSize;
     private Integer mMinZoomLevel;
@@ -32,6 +34,14 @@ public class RCTMGLRasterSource extends RCTSource<RasterSource> {
 
     public void setURL(String url) {
         mURL = url;
+    }
+
+    public void setTiles(String[] tiles) {
+        mTiles = tiles;
+    }
+
+    public void setBounds(Float[] bounds) {
+        mBounds = bounds;
     }
 
     public void setTileSize(int tileSize) {
@@ -55,7 +65,16 @@ public class RCTMGLRasterSource extends RCTSource<RasterSource> {
     }
 
     private TileSet buildTileset() {
-        TileSet tileSet = new TileSet(TILE_SPEC_VERSION, mURL);
+        TileSet tileSet;
+        if (mTiles != null) {
+            tileSet = new TileSet(TILE_SPEC_VERSION, mTiles);
+        } else {
+            tileSet = new TileSet(TILE_SPEC_VERSION, mURL);
+        }
+
+        if (mBounds != null) {
+            tileSet.setBounds(mBounds);
+        }
 
         if (mMinZoomLevel != null) {
             tileSet.setMinZoom(mMinZoomLevel.floatValue());

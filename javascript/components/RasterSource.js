@@ -26,6 +26,9 @@ class RasterSource extends React.Component {
      */
     url: PropTypes.string,
 
+    tiles: PropTypes.arrayOf(PropTypes.string),
+    bounds: PropTypes.arrayOf(PropTypes.number),
+
     /**
      * An unsigned integer that specifies the minimum zoom level at which to display tiles from the source.
      * The value should be between 0 and 22, inclusive, and less than
@@ -67,6 +70,8 @@ class RasterSource extends React.Component {
       ...this.props,
       id: this.props.id,
       url: this.props.url,
+      tiles: this.props.tiles,
+      bounds: this.props.bounds,
       minZoomLevel: this.props.minZoomLevel,
       maxZoomLevel: this.props.maxZoomLevel,
       tileSize: this.props.tileSize,
