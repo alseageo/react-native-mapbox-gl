@@ -24,6 +24,12 @@ class VectorSource extends React.Component {
      * A URL to a TileJSON configuration file describing the source’s contents and other metadata.
      */
     url: PropTypes.string,
+
+    tiles: PropTypes.arrayOf(PropTypes.string),
+    bounds: PropTypes.arrayOf(PropTypes.number),
+    minZoomLevel: PropTypes.number,
+    maxZoomLevel: PropTypes.number,
+    attribution: PropTypes.string,
   };
 
   static defaultProps = {
@@ -34,6 +40,11 @@ class VectorSource extends React.Component {
     const props = {
       id: this.props.id,
       url: this.props.url,
+      tiles: this.props.tiles,
+      bounds: this.props.bounds,
+      minZoomLevel: this.props.minZoomLevel,
+      maxZoomLevel: this.props.maxZoomLevel,
+      attribution: this.props.attribution,
     };
     return (
       <RCTMGLVectorSource {...props}>

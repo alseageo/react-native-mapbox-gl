@@ -3,6 +3,7 @@ package com.mapbox.rctmgl.components.styles.sources;
 import android.view.View;
 
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
 import com.mapbox.rctmgl.components.AbstractEventEmitter;
@@ -65,5 +66,44 @@ public class RCTMGLVectorSourceManager extends AbstractEventEmitter<RCTMGLVector
     @ReactProp(name="url")
     public void setUrl(RCTMGLVectorSource source, String url) {
         source.setURL(url);
+    }
+
+    @ReactProp(name="tiles")
+    public void setTiles(RCTMGLVectorSource source, ReadableArray arr) {
+        String[] tiles = new String[arr.size()];
+
+        for (int i = 0; i < arr.size(); i++) {
+            String tileURL = arr.getString(i);
+            tiles[i] = tileURL;
+        }
+
+        source.setTiles(tiles);
+    }
+
+    @ReactProp(name="bounds")
+    public void setBounds(RCTMGLVectorSource source, ReadableArray arr) {
+        Float[] bounds = new Float[arr.size()];
+
+        for (int i = 0; i < arr.size(); i++) {
+            Float coord = (float)arr.getDouble(i);
+            bounds[i] = coord;
+        }
+
+        source.setBounds(bounds);
+    }
+
+    @ReactProp(name="maxZoomLevel")
+    public void setMaxZoomLevel(RCTMGLVectorSource source, float maxZoomLevel) {
+        source.setMaxZoom(maxZoomLevel);
+    }
+
+    @ReactProp(name="minZoomLevel")
+    public void setMinZoomLevel(RCTMGLVectorSource source, float minZoomLevel) {
+        source.setMinZoom(minZoomLevel);
+    }
+
+    @ReactProp(name="attribution")
+    public void setAttribution(RCTMGLVectorSource source, String attribution) {
+        source.setAttribution(attribution);
     }
 }
