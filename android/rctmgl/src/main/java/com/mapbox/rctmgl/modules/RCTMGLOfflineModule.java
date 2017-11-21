@@ -1,5 +1,7 @@
 package com.mapbox.rctmgl.modules;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -32,11 +34,16 @@ import com.mapbox.services.commons.geojson.FeatureCollection;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Timer;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Created by nickitaliano on 10/24/17.
@@ -216,6 +223,70 @@ public class RCTMGLOfflineModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void setProgressEventThrottle(double eventThrottle) {
         mProgressEventThrottle = eventThrottle;
+    }
+
+    @ReactMethod
+    public void putTilesFromMBTiles(String path, String urlTemplate, float pixelRatio, Promise promise) {
+        try {
+            SQLiteDatabase db = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY);
+            Cursor cursor = db.query("tiles", null, null, null, null, null, null, null);
+            try {
+                while (cursor.moveToNext()) {
+                    int z = cursor.getInt(0);
+                    int x = cursor.getInt(1);
+                    int y = cursor.getInt(2);
+                    int yFlipped = (1 << z) - 1 - y;
+                    byte[] gzippedData = cursor.getBlob(3);
+
+                    gunzipAndPutTile(urlTemplate, pixelRatio, x, yFlipped, z, gzippedData, promise);
+                }
+            } catch (Exception e) {
+                promise.reject("putTilesFromMBTiles", e.getMessage());
+            } finally {
+                cursor.close();
+                db.close();
+            }
+        } catch (Exception e) {
+            promise.reject("putTilesFromMBTiles", e.getMessage());
+        }
+    }
+
+    private void gunzipAndPutTile(
+        final String urlTemplate,
+        final float pixelRatio,
+        final int x,
+        final int y,
+        final int z,
+        byte[] gzippedData,
+        final Promise promise) throws IOException {
+        // gunzip tile
+        GZIPInputStream is = new GZIPInputStream(new ByteArrayInputStream(gzippedData));
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        int nRead;
+        byte[] buffer = new byte[4096];
+
+        while ((nRead = is.read(buffer, 0, buffer.length)) != -1) {
+            os.write(buffer, 0, nRead);
+        }
+
+        final byte[] data = os.toByteArray();
+
+        final OfflineManager offlineManager = OfflineManager.getInstance(mReactContext);
+
+        offlineManager.putTile(
+            urlTemplate, pixelRatio, x, y, z, data,
+            new OfflineManager.PutTileCallback() {
+                @Override
+                public void onComplete() {
+                    // don't resolve promise in case some other tile has an error
+                }
+
+                @Override
+                public void onError(String error) {
+                    promise.reject("putTilesFromMBTiles", error);
+                }
+            }
+        );
     }
 
     private OfflineRegionDefinition makeDefinition(LatLngBounds latLngBounds, ReadableMap options) {

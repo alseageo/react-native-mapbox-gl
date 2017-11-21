@@ -138,6 +138,10 @@ class OfflineManager {
     MapboxGLOfflineManager.setProgressEventThrottle(throttleValue);
   }
 
+  putTilesFromMBTiles (path, urlTemplate, pixelRatio) {
+    return MapboxGLOfflineManager.putTilesFromMBTiles(path, urlTemplate, pixelRatio);
+  }
+
   /**
    * Subscribe to download status/error events for the requested offline pack.
    * Note that createPack calls this internally if listeners are provided.

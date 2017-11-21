@@ -10,6 +10,8 @@
 #import "RCTMGLUtils.h"
 #import "RCTMGLEvent.h"
 #import "RCTMGLEventTypes.h"
+#import <GZIP/GZIP.h>
+#import <sqlite3.h>
 
 @implementation MGLOfflineModule
 {
@@ -170,6 +172,51 @@ RCT_EXPORT_METHOD(setTileCountLimit:(NSNumber *)limit)
 RCT_EXPORT_METHOD(setProgressEventThrottle:(NSNumber *)throttleValue)
 {
     eventThrottle = [throttleValue doubleValue];
+}
+
+RCT_REMAP_METHOD(putTilesFromMBTiles,
+                  path:(nonnull NSString *)path
+                  urlTemplate:(nonnull NSString *)urlTemplate
+                  pixelRatio:(float)pixelRatio
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+    sqlite3 *conn;
+    if (sqlite3_open([path UTF8String], &conn) != SQLITE_OK) {
+        reject(@"put_tile_failed", @"open mbtiles failed", nil);
+    } else {
+        NSString *query = @"SELECT * FROM tiles;";
+        sqlite3_stmt *stmt;
+        if (sqlite3_prepare(conn, [query UTF8String], -1, &stmt, NULL) != SQLITE_OK) {
+           reject(@"put_tile_failed", @"error preparing statement", nil);
+        } else {
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                int z = sqlite3_column_int(stmt, 0);
+                int x = sqlite3_column_int(stmt, 1);
+                int y = sqlite3_column_int(stmt, 2);
+                int yFlipped = (1 << z) - 1 - y;
+                NSData *data = [NSData dataWithBytes:sqlite3_column_blob(stmt, 3) length:sqlite3_column_bytes(stmt, 3)];
+                [self gunzipAndPutTilesWithUrlTemplate:urlTemplate pixelRatio:pixelRatio x:x y:yFlipped z:z data:data resolver:resolve rejecter:reject];
+            }
+        }
+        sqlite3_close(conn);
+    }
+}
+
+- (void)gunzipAndPutTilesWithUrlTemplate:(nonnull NSString *)urlTemplate
+                              pixelRatio:(float)pixelRatio
+                                       x:(int)x
+                                       y:(int)y
+                                       z:(int)z
+                                    data:(nonnull NSData *)data
+                                resolver:(RCTPromiseResolveBlock)resolve
+                                rejecter:(RCTPromiseRejectBlock)reject {
+    [[MGLOfflineStorage sharedOfflineStorage] putTileWithUrlTemplate:urlTemplate pixelRatio:pixelRatio x:x y:y z:z data:[data gunzippedData] completionHandler:^(NSError * _Nullable error) {
+        // don't resolve promise in case some other tile has an error
+        if (error) {
+            reject(@"put_tile_failed", error.localizedFailureReason, error);
+        }
+    }];
 }
 
 - (void)offlinePackProgressDidChange:(NSNotification *)notification

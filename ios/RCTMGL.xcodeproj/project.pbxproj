@@ -607,8 +607,14 @@
 		C4D144471F4E16F600396F26 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)";
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../../react-native/React/**";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SRCROOT)",
+					"${PROJECT_DIR}/../../../../ios/Pods/**",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../../react-native/React/**",
+					"${SRCROOT}/../../../../ios/Pods/**",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -618,8 +624,14 @@
 		C4D144481F4E16F600396F26 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)";
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../../react-native/React/**";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SRCROOT)",
+					"${PROJECT_DIR}/../../../../ios/Pods/**",
+				);
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../../react-native/React/**",
+					"${SRCROOT}/../../../../ios/Pods/**",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
