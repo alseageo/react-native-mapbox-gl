@@ -96,9 +96,9 @@ RCT_CUSTOM_VIEW_PROPERTY(contentInset, UIEdgeInsetsMake, RCTMapboxGL)
                      @"light": [[MGLStyle lightStyleURL] absoluteString],
                      @"dark": [[MGLStyle darkStyleURL] absoluteString],
                      @"streets": [[MGLStyle streetsStyleURL] absoluteString],
-                     @"emerald": [[MGLStyle emeraldStyleURL] absoluteString],
+                     @"emerald": [NSURL URLWithString:@"mapbox://styles/mapbox/emerald-v8"],
                      @"satellite": [[MGLStyle satelliteStyleURL] absoluteString],
-                     @"hybrid": [[MGLStyle hybridStyleURL] absoluteString],
+                     @"hybrid": [[MGLStyle satelliteStreetsStyleURL] absoluteString],
                      },
              @"userTrackingMode": @{
                      @"none": [NSNumber numberWithUnsignedInt:MGLUserTrackingModeNone],
@@ -289,7 +289,7 @@ RCT_EXPORT_METHOD(setAccessToken:(nonnull NSString *)accessToken
     MGLOfflinePack *pack = notification.object;
     [self flushThrottleForPack:pack];
     NSDictionary *userInfo = [NSKeyedUnarchiver unarchiveObjectWithData:pack.context];
-    uint64_t maximumCount = [notification.userInfo[MGLOfflinePackMaximumCountUserInfoKey] unsignedLongLongValue];
+    uint64_t maximumCount = [notification.userInfo[MGLOfflinePackUserInfoKeyMaximumCount] unsignedLongLongValue];
 
     NSDictionary *event = @{ @"name": userInfo[@"name"],
                              @"maxTiles": @(maximumCount) };
@@ -301,7 +301,7 @@ RCT_EXPORT_METHOD(setAccessToken:(nonnull NSString *)accessToken
     MGLOfflinePack *pack = notification.object;
     [self flushThrottleForPack:pack];
     NSDictionary *userInfo = [NSKeyedUnarchiver unarchiveObjectWithData:pack.context];
-    NSError *error = notification.userInfo[MGLOfflinePackErrorUserInfoKey];
+    NSError *error = notification.userInfo[MGLOfflinePackUserInfoKeyError];
 
     NSDictionary *event = @{ @"name": userInfo[@"name"],
                              @"error": [error localizedDescription] };
@@ -931,9 +931,9 @@ RCT_EXPORT_METHOD(setSource:(nonnull NSNumber *)reactTag
                   }
               }
               NSString *urlString = sourceJson[@"url"];
-              MGLVectorSource *source;
+              MGLVectorTileSource *source;
               if (urlString) {
-                  source = [[MGLVectorSource alloc] initWithIdentifier:id configurationURL:[NSURL URLWithString:urlString]];
+                  source = [[MGLVectorTileSource alloc] initWithIdentifier:id configurationURL:[NSURL URLWithString:urlString]];
               } else {
                   NSArray *tiles = sourceJson[@"tiles"];
                   NSNumber *minzoom = sourceJson[@"minzoom"];
@@ -945,7 +945,7 @@ RCT_EXPORT_METHOD(setSource:(nonnull NSNumber *)reactTag
                   if (maxzoom) {
                       [options setObject:maxzoom forKey:MGLTileSourceOptionMaximumZoomLevel];
                   }
-                  source = [[MGLVectorSource alloc] initWithIdentifier:id tileURLTemplates:tiles options:options];
+                  source = [[MGLVectorTileSource alloc] initWithIdentifier:id tileURLTemplates:tiles options:options];
               }
               if (![mapView addSource:source]) {
                   reject(@"map_style_not_loaded", @"setSource(): style has not finished loading", nil);

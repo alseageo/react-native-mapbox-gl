@@ -86,7 +86,7 @@
 
     _map.centerCoordinate = _initialCenterCoordinate;
     _map.clipsToBounds = _clipsToBounds;
-    _map.debugActive = _debugActive;
+    _map.debugMask = _debugActive;
     _map.direction = _initialDirection;
     _map.rotateEnabled = _rotateEnabled;
     _map.scrollEnabled = _scrollEnabled;
@@ -336,7 +336,7 @@
 {
     if (_debugActive == debugActive) { return; }
     _debugActive = debugActive;
-    if (_map) { _map.debugActive = debugActive; }
+    if (_map) { _map.debugMask = debugActive; }
 }
 
 - (void)setRotateEnabled:(BOOL)rotateEnabled

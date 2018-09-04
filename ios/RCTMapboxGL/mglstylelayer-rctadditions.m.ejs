@@ -92,58 +92,87 @@ NSString *const RCTMapboxGLErrorDomain = @"com.mapbox.reactnativemapboxgl.ErrorD
             };
 <% } -%>
 <% if (prop['zoom-function'] === true) { -%>
+            NSExpression *exp;
             if ([[<%- prop.propertyType %>Properties valueForKey:@"<%- prop.name %>"] isKindOfClass:[NSDictionary class]]) {
                 NSArray *stops = <%- prop.propertyType %>Properties[@"<%- prop.name %>"][@"stops"];
                 NSMutableDictionary *stopsDict = [[NSMutableDictionary alloc] init];
                 for (id stop in stops) {
 <% if (prop.type === 'color') { -%>
-                    [stopsDict setObject:[MGLStyleValue valueWithRawValue:[UIColor colorWithString:stop[1]]] forKey:stop[0]];
+                    [stopsDict setObject:[UIColor colorWithString:stop[1]] forKey:stop[0]];
 <% } else if (prop.type === 'enum') { -%>
                     NSValue *value = [NSValue valueWithMGL<%- upperCamelize(prop.setterName || prop.name) %>:enumDictionary[<%- prop.propertyType %>Properties[@"<%- prop.name %>"]].integerValue];
-                    [stopsDict setObject:[MGLStyleValue valueWithRawValue:value] forKey:stop[0]];
+                    // // [stopsDict setObject:[MGLStyleValue valueWithRawValue:value] forKey:stop[0]];
+                    [stopsDict setObject:value forKey:stop[0]];
 <% } else if (prop.name.includes('icon-text-fit-padding')) { -%>
                     NSArray *<%- camelize(prop.name) %>Array = stop[1];
                     UIEdgeInsets insets = UIEdgeInsetsMake([<%- camelize(prop.name) %>Array[0] floatValue], [<%- camelize(prop.name) %>Array[3] floatValue], [<%- camelize(prop.name) %>Array[2] floatValue], [<%- camelize(prop.name) %>Array[1] floatValue]);
-                    [stopsDict setObject:[MGLStyleValue valueWithRawValue:[NSValue valueWithUIEdgeInsets:insets]] forKey:stop[0]];
+                //    [stopsDict setObject:[MGLStyleValue valueWithRawValue:[NSValue valueWithUIEdgeInsets:insets]] forKey:stop[0]];
+                    [stopsDict setObject:[NSValue valueWithUIEdgeInsets:insets] forKey:stop[0]];
 <% } else if ((prop.name.includes('offset') || prop.name.includes('translate')) && !prop.name.includes('line-offset')) { -%>
                     CGVector vector = CGVectorMake([stop[1][0] floatValue], [stop[1][1] floatValue]);
-                    [stopsDict setObject:[MGLStyleValue valueWithRawValue:[NSValue valueWithCGVector:vector]] forKey:stop[0]];
+                //    [stopsDict setObject:[MGLStyleValue valueWithRawValue:[NSValue valueWithCGVector:vector]] forKey:stop[0]];
+                    [stopsDict setObject:[NSValue valueWithCGVector:vector] forKey:stop[0]];
 <% } else { -%>
-                    [stopsDict setObject:[MGLStyleValue valueWithRawValue:stop[1]] forKey:stop[0]];
+                //    // [stopsDict setObject:[MGLStyleValue valueWithRawValue:stop[1]] forKey:stop[0]];
+                    [stopsDict setObject:stop[1] forKey:stop[0]];
 <% } -%>
                 }
 <% if (prop.function === 'interpolated') { -%>
                 NSMutableDictionary *optionsDict = [[NSMutableDictionary alloc] init];
                 NSNumber *baseNumber = <%- prop.propertyType %>Properties[@"<%- prop.name %>"][@"base"];
                 if (baseNumber) {
-                    [optionsDict setObject:baseNumber forKey:MGLStyleFunctionOptionInterpolationBase];
+                    // [optionsDict setObject:baseNumber forKey:MGLStyleFunctionOptionInterpolationBase];
+                    exp = [NSExpression
+                            mgl_expressionForInterpolatingExpression:NSExpression.zoomLevelVariableExpression
+                            withCurveType:MGLExpressionInterpolationModeExponential
+                            parameters:[NSExpression expressionForConstantValue:baseNumber]
+                            stops:[NSExpression expressionForConstantValue:stopsDict]];
                 } else {
-                    [optionsDict setObject:[NSNumber numberWithInt:1] forKey:MGLStyleFunctionOptionInterpolationBase];
+                    // [optionsDict setObject:[NSNumber numberWithInt:1] forKey:MGLStyleFunctionOptionInterpolationBase];
+                    // exp = [NSExpression expressionWithFormat: @"mgl_interpolate:withCurveType:parameters:stops:(mag, 'exponential', nil, %@)", stops];
+                    exp = [NSExpression
+                            mgl_expressionForInterpolatingExpression:NSExpression.zoomLevelVariableExpression
+                            withCurveType:MGLExpressionInterpolationModeLinear
+                            parameters:nil
+                            stops:[NSExpression expressionForConstantValue:stopsDict]];
                 }
-                MGLStyleValue *<%- camelize(prop.name) %>Value = [MGLStyleValue valueWithInterpolationMode:MGLInterpolationModeExponential cameraStops:stopsDict options:optionsDict];
+                // MGLStyleValue *<%- camelize(prop.name) %>Value = [MGLStyleValue valueWithInterpolationMode:MGLInterpolationModeExponential cameraStops:stopsDict options:optionsDict];
 <% } else { -%>
-                MGLStyleValue *<%- camelize(prop.name) %>Value = [MGLStyleValue valueWithInterpolationMode:MGLInterpolationModeInterval cameraStops:stopsDict options:nil];
+                // MGLStyleValue *<%- camelize(prop.name) %>Value = [MGLStyleValue valueWithInterpolationMode:MGLInterpolationModeInterval cameraStops:stopsDict options:nil];
+                //// exp = [NSExpression expressionForConstantValue:<%- prop.propertyType %>Properties[@"<%- prop.name %>"]];
+                // exp = [NSExpression expressionWithFormat: @"mgl_step:from:stops:(mag, nil, %@)", stopsDict];
+                exp = [NSExpression
+                       mgl_expressionForSteppingExpression:NSExpression.zoomLevelVariableExpression
+                       fromExpression:[NSExpression expressionForConstantValue:stops[0][1]]
+                       stops:[NSExpression expressionForConstantValue:stopsDict]];
 <% } -%>
-                [layer set<%- upperCamelize(prop.setterName || prop.name) %>:<%- camelize(prop.name) %>Value];
+                // [layer set<%- upperCamelize(prop.setterName || prop.name) %>:<%- camelize(prop.name) %>Value];
+                [layer set<%- upperCamelize(prop.setterName || prop.name) %>:exp];
             } else {
 <% } -%>
 <% if (prop.type === 'color') { -%>
                 UIColor *color = [UIColor colorWithString:<%- prop.propertyType %>Properties[@"<%- prop.name %>"]];
-                MGLStyleValue *<%- camelize(prop.name) %>Value = [MGLStyleValue valueWithRawValue:color];
+                // MGLStyleValue *<%- camelize(prop.name) %>Value = [MGLStyleValue valueWithRawValue:color];
+                exp = [NSExpression expressionForConstantValue:color];
 <% } else if (prop.type === 'enum') { -%>
                 NSValue *value = [NSValue valueWithMGL<%- upperCamelize(prop.setterName || prop.name) %>:enumDictionary[<%- prop.propertyType %>Properties[@"<%- prop.name %>"]].integerValue];
-                MGLStyleValue *<%- camelize(prop.name) %>Value = [MGLStyleValue valueWithRawValue:value];
+                // MGLStyleValue *<%- camelize(prop.name) %>Value = [MGLStyleValue valueWithRawValue:value];
+                exp = [NSExpression expressionForConstantValue:value];
 <% } else if (prop.name.includes('icon-text-fit-padding')) { -%>
-                NSArray *<%- camelize(prop.name) %>Array = layoutProperties[@"<%- prop.name %>"];
-                UIEdgeInsets insets = UIEdgeInsetsMake([<%- camelize(prop.name) %>Array[0] floatValue], [<%- camelize(prop.name) %>Array[3] floatValue], [<%- camelize(prop.name) %>Array[2] floatValue], [<%- camelize(prop.name) %>Array[1] floatValue]);
-                MGLStyleValue *<%- camelize(prop.name) %>Value = [MGLStyleValue valueWithRawValue:[NSValue valueWithUIEdgeInsets:insets]];
+                // NSArray *<%- camelize(prop.name) %>Array = layoutProperties[@"<%- prop.name %>"];
+                // UIEdgeInsets insets = UIEdgeInsetsMake([<%- camelize(prop.name) %>Array[0] floatValue], [<%- camelize(prop.name) %>Array[3] floatValue], [<%- camelize(prop.name) %>Array[2] floatValue], [<%- camelize(prop.name) %>Array[1] floatValue]);
+                // MGLStyleValue *<%- camelize(prop.name) %>Value = [MGLStyleValue valueWithRawValue:[NSValue valueWithUIEdgeInsets:insets]];
+                exp = [NSExpression expressionForConstantValue:<%- prop.propertyType %>Properties[@"<%- prop.name %>"]];
 <% } else if ((prop.name.includes('offset') || prop.name.includes('translate')) && !prop.name.includes('line-offset')) { -%>
-                CGVector vector = CGVectorMake([<%- prop.propertyType %>Properties[@"<%- prop.name %>"][0] floatValue], [<%- prop.propertyType %>Properties[@"<%- prop.name %>"][1] floatValue]);
-                MGLStyleValue *<%- camelize(prop.name) %>Value = [MGLStyleValue valueWithRawValue:[NSValue valueWithCGVector:vector]];
+                // CGVector vector = CGVectorMake([<%- prop.propertyType %>Properties[@"<%- prop.name %>"][0] floatValue], [<%- prop.propertyType %>Properties[@"<%- prop.name %>"][1] floatValue]);
+                // MGLStyleValue *<%- camelize(prop.name) %>Value = [MGLStyleValue valueWithRawValue:[NSValue valueWithCGVector:vector]];
+                exp = [NSExpression expressionForConstantValue:<%- prop.propertyType %>Properties[@"<%- prop.name %>"]];
 <% } else { -%>
-                MGLStyleValue *<%- camelize(prop.name) %>Value = [MGLStyleValue valueWithRawValue:<%- prop.propertyType %>Properties[@"<%- prop.name %>"]];
+                // MGLStyleValue *<%- camelize(prop.name) %>Value = [MGLStyleValue valueWithRawValue:<%- prop.propertyType %>Properties[@"<%- prop.name %>"]];
+                exp = [NSExpression expressionForConstantValue:<%- prop.propertyType %>Properties[@"<%- prop.name %>"]];
 <% } -%>
-                [layer set<%- upperCamelize(prop.setterName || prop.name) %>:<%- camelize(prop.name) %>Value];
+                // [layer set<%- upperCamelize(prop.setterName || prop.name) %>:<%- camelize(prop.name) %>Value];
+                [layer set<%- upperCamelize(prop.setterName || prop.name) %>:exp];
 <% if (prop['zoom-function'] === true) { -%>
             }
 <% } -%>
