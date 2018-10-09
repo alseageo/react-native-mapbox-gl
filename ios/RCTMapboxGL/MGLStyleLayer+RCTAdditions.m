@@ -1409,22 +1409,63 @@ NSString *const RCTMapboxGLErrorDomain = @"com.mapbox.reactnativemapboxgl.ErrorD
                 NSArray *stops = layoutProperties[@"text-field"][@"stops"];
                 NSMutableDictionary *stopsDict = [[NSMutableDictionary alloc] init];
                 for (id stop in stops) {
-                //    // [stopsDict setObject:[MGLStyleValue valueWithRawValue:stop[1]] forKey:stop[0]];
-                    [stopsDict setObject:stop[1] forKey:stop[0]];
+                    NSString *stopVal = stop[1];
+                    NSMutableArray *jsonExp = [[NSMutableArray alloc] init];
+                    [jsonExp addObject:@"concat"];
+                    
+                    NSRange matchFieldStart = [stopVal rangeOfString: @"{"];
+                    if (matchFieldStart.location == NSNotFound) {
+                        [stopsDict setObject:stopVal forKey:stop[0]];
+                        continue;
+                    } else {
+                        NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"{}"];
+                        NSArray *splitString = [stopVal componentsSeparatedByCharactersInSet:delimiters];
+                        
+                        for (int i = 0; i < [splitString count]; i++)
+                        {
+                            if (!(i % 2)) {
+                                // Odd number, so normal string
+                                NSString *string = [splitString objectAtIndex:i];
+                                [jsonExp addObject:string];
+                            } else {
+                                // Even number, so field name
+                                NSString *fieldName = [splitString objectAtIndex:i];
+                                NSArray *getField = @[@"string", @[@"get", fieldName]];
+                                [jsonExp addObject:getField];
+                            }
+                        }
+                    }
+                    
+                    [stopsDict setObject:jsonExp forKey:stop[0]];
                 }
-                // MGLStyleValue *textFieldValue = [MGLStyleValue valueWithInterpolationMode:MGLInterpolationModeInterval cameraStops:stopsDict options:nil];
-                //// exp = [NSExpression expressionForConstantValue:layoutProperties[@"text-field"]];
-                // exp = [NSExpression expressionWithFormat: @"mgl_step:from:stops:(mag, nil, %@)", stopsDict];
-                exp = [NSExpression
-                       mgl_expressionForSteppingExpression:NSExpression.zoomLevelVariableExpression
-                       fromExpression:[NSExpression expressionForConstantValue:stops[0][1]]
-                       stops:[NSExpression expressionForConstantValue:stopsDict]];
-                // [layer setText:textFieldValue];
+
+                NSMutableArray *jsonStepExp = [[NSMutableArray alloc] init];
+                [jsonStepExp addObject:@"step"];
+                [jsonStepExp addObject:@[@"zoom"]];
+                
+                BOOL setDefault = NO;
+                for (id stop in stops) {
+                    NSNumber *stopZoom = stop[0];
+                    if ([stopZoom intValue] == 0) {
+                        // If the stop is 0, it is the default, so we don't need to add the 0 stop
+                        [jsonStepExp addObject:stopsDict[stopZoom]];
+                        setDefault = YES;
+                        continue;
+                    }
+                    
+                    if (!setDefault) {
+                        [jsonStepExp addObject:@""]; // setting default value
+                        setDefault = YES;
+                    }
+                    
+                    [jsonStepExp addObject:stopZoom];
+                    [jsonStepExp addObject:stopsDict[stopZoom]];
+                }
+                
+                exp = [NSExpression expressionWithMGLJSONObject:jsonStepExp];
                 [layer setText:exp];
             } else {
-                // MGLStyleValue *textFieldValue = [MGLStyleValue valueWithRawValue:layoutProperties[@"text-field"]];
                 exp = [NSExpression expressionForConstantValue:layoutProperties[@"text-field"]];
-                // [layer setText:textFieldValue];
                 [layer setText:exp];
             }
         }

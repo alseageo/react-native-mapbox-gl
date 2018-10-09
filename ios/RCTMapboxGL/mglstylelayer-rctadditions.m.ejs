@@ -112,6 +112,35 @@ NSString *const RCTMapboxGLErrorDomain = @"com.mapbox.reactnativemapboxgl.ErrorD
                     CGVector vector = CGVectorMake([stop[1][0] floatValue], [stop[1][1] floatValue]);
                 //    [stopsDict setObject:[MGLStyleValue valueWithRawValue:[NSValue valueWithCGVector:vector]] forKey:stop[0]];
                     [stopsDict setObject:[NSValue valueWithCGVector:vector] forKey:stop[0]];
+<% } else if (prop.name === 'text-field') { -%>
+                    NSString *stopVal = stop[1];
+                    NSMutableArray *jsonExp = [[NSMutableArray alloc] init];
+                    [jsonExp addObject:@"concat"];
+
+                    NSRange matchFieldStart = [stopVal rangeOfString: @"{"];
+                    if (matchFieldStart.location == NSNotFound) {
+                        [stopsDict setObject:stopVal forKey:stop[0]];
+                        continue;
+                    } else {
+                        NSCharacterSet *delimiters = [NSCharacterSet characterSetWithCharactersInString:@"{}"];
+                        NSArray *splitString = [stopVal componentsSeparatedByCharactersInSet:delimiters];
+                        
+                        for (int i = 0; i < [splitString count]; i++)
+                        {
+                            if (!(i % 2)) {
+                                // Odd number, so normal string
+                                NSString *string = [splitString objectAtIndex:i];
+                                [jsonExp addObject:string];
+                            } else {
+                                // Even number, so field name
+                                NSString *fieldName = [splitString objectAtIndex:i];
+                                NSArray *getField = @[@"string", @[@"get", fieldName]];
+                                [jsonExp addObject:getField];
+                            }
+                        }
+                    }
+
+                    [stopsDict setObject:jsonExp forKey:stop[0]];
 <% } else { -%>
                 //    // [stopsDict setObject:[MGLStyleValue valueWithRawValue:stop[1]] forKey:stop[0]];
                     [stopsDict setObject:stop[1] forKey:stop[0]];
