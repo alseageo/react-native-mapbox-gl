@@ -772,18 +772,41 @@ NSString *const RCTMapboxGLErrorDomain = @"com.mapbox.reactnativemapboxgl.ErrorD
             if ([[paintProperties valueForKey:@"line-dasharray"] isKindOfClass:[NSDictionary class]]) {
                 NSArray *stops = paintProperties[@"line-dasharray"][@"stops"];
                 NSMutableDictionary *stopsDict = [[NSMutableDictionary alloc] init];
+                
+                
                 for (id stop in stops) {
-                //    // [stopsDict setObject:[MGLStyleValue valueWithRawValue:stop[1]] forKey:stop[0]];
-                    [stopsDict setObject:stop[1] forKey:stop[0]];
+                    NSString *stopVal = stop[1];
+                    NSMutableArray *jsonExp = [[NSMutableArray alloc] init];
+                    [jsonExp addObject:@"literal"];
+                    [jsonExp addObject:stopVal];
+                    
+                    [stopsDict setObject:jsonExp forKey:stop[0]];
                 }
-                // MGLStyleValue *lineDasharrayValue = [MGLStyleValue valueWithInterpolationMode:MGLInterpolationModeInterval cameraStops:stopsDict options:nil];
-                //// exp = [NSExpression expressionForConstantValue:paintProperties[@"line-dasharray"]];
-                // exp = [NSExpression expressionWithFormat: @"mgl_step:from:stops:(mag, nil, %@)", stopsDict];
-                exp = [NSExpression
-                       mgl_expressionForSteppingExpression:NSExpression.zoomLevelVariableExpression
-                       fromExpression:[NSExpression expressionForConstantValue:stops[0][1]]
-                       stops:[NSExpression expressionForConstantValue:stopsDict]];
-                // [layer setLineDashPattern:lineDasharrayValue];
+                
+                NSMutableArray *jsonStepExp = [[NSMutableArray alloc] init];
+                [jsonStepExp addObject:@"step"];
+                [jsonStepExp addObject:@[@"zoom"]];
+                
+                BOOL setDefault = NO;
+                for (id stop in stops) {
+                    NSNumber *stopZoom = stop[0];
+                    if ([stopZoom intValue] == 0) {
+                        // If the stop is 0, it is the default, so we don't need to add the 0 stop
+                        [jsonStepExp addObject:stopsDict[stopZoom]];
+                        setDefault = YES;
+                        continue;
+                    }
+                    
+                    if (!setDefault) {
+                        [jsonStepExp addObject:@[@"literal", @[@1, @1]]]; // setting default value
+                        setDefault = YES;
+                    }
+                    
+                    [jsonStepExp addObject:stopZoom];
+                    [jsonStepExp addObject:stopsDict[stopZoom]];
+                }
+                
+                exp = [NSExpression expressionWithMGLJSONObject:jsonStepExp];
                 [layer setLineDashPattern:exp];
             } else {
                 // MGLStyleValue *lineDasharrayValue = [MGLStyleValue valueWithRawValue:paintProperties[@"line-dasharray"]];
